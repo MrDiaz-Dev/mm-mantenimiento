@@ -1,0 +1,8 @@
+{
+  "name": "MM-Mantenimiento",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular",
+  "id": "b3d885f3"
+}
