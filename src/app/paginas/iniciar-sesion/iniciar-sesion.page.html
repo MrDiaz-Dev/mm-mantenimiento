@@ -1,0 +1,110 @@
+<ion-content [fullscreen]="true">
+  <div class="pantalla">
+    <section class="panel" aria-labelledby="titulo-sesion">
+      <p class="marca">{{ nombreMarca }}</p>
+      <h1 id="titulo-sesion">
+        {{ modo === 'entrar' ? 'Iniciar sesión' : 'Crear cuenta' }}
+      </h1>
+      <p class="ayuda">
+        {{
+          modo === 'entrar'
+            ? 'Entra con tu correo y contraseña.'
+            : 'Regístrate como entrenador o alumno.'
+        }}
+      </p>
+
+      <div class="modos" role="tablist" aria-label="Modo de acceso">
+        <button
+          type="button"
+          role="tab"
+          class="modos__boton"
+          [class.modos__boton--activo]="modo === 'entrar'"
+          [attr.aria-selected]="modo === 'entrar'"
+          (click)="cambiarModo('entrar')"
+        >
+          Entrar
+        </button>
+        <button
+          type="button"
+          role="tab"
+          class="modos__boton"
+          [class.modos__boton--activo]="modo === 'registrar'"
+          [attr.aria-selected]="modo === 'registrar'"
+          (click)="cambiarModo('registrar')"
+        >
+          Registro
+        </button>
+      </div>
+
+      <form class="formulario" (ngSubmit)="enviar()" novalidate>
+        @if (modo === 'registrar') {
+          <div class="campo">
+            <label for="nombreCompleto">Nombre completo</label>
+            <input
+              id="nombreCompleto"
+              name="nombreCompleto"
+              type="text"
+              autocomplete="name"
+              required
+              [(ngModel)]="nombreCompleto"
+            />
+          </div>
+
+          <fieldset class="campo">
+            <legend>Rol</legend>
+            <div class="roles">
+              <label class="roles__opcion">
+                <input
+                  type="radio"
+                  name="rol"
+                  value="cliente"
+                  [(ngModel)]="rol"
+                />
+                Alumno
+              </label>
+              <label class="roles__opcion">
+                <input
+                  type="radio"
+                  name="rol"
+                  value="admin"
+                  [(ngModel)]="rol"
+                />
+                Entrenador
+              </label>
+            </div>
+          </fieldset>
+        }
+
+        <div class="campo">
+          <label for="correo">Correo</label>
+          <input
+            id="correo"
+            name="correo"
+            type="email"
+            autocomplete="username"
+            required
+            [(ngModel)]="correo"
+          />
+        </div>
+
+        <div class="campo">
+          <label for="contrasena">Contraseña</label>
+          <input
+            id="contrasena"
+            name="contrasena"
+            type="password"
+            [attr.autocomplete]="
+              modo === 'entrar' ? 'current-password' : 'new-password'
+            "
+            required
+            [(ngModel)]="contrasena"
+          />
+        </div>
+
+        <ion-button type="submit" expand="block" color="primary">
+          {{ modo === 'entrar' ? 'Entrar' : 'Crear cuenta' }}
+        </ion-button>
+      </form>
+    </section>
+  </div>
+</ion-content>

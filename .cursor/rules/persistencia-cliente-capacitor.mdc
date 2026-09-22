@@ -1,0 +1,54 @@
+---
+description: Persistencia y almacenamiento cliente listos para Capacitor (web + Android/iOS)
+globs: ionic/angular/**/*.{ts,html}
+alwaysApply: false
+---
+
+# Persistencia cliente (Capacitor-ready)
+
+Esta app Ionic/Angular irá a **Android e iOS con Capacitor**. Todo almacenamiento o estado persistente en el cliente debe funcionar igual en navegador y en WebView nativo.
+
+## Principios
+
+- **Abstracción**: nunca leer/escribir storage desde páginas o componentes. Usar un servicio Angular (p. ej. `AlmacenamientoService`) como única puerta.
+- **API única**: el resto de la app solo conoce `obtener` / `guardar` / `eliminar` (o similar). La implementación puede cambiar (Preferences, SQLite, etc.) sin tocar UI.
+- **Separar capas**: estado en memoria (señales, servicios) ≠ persistencia. Persistir solo lo necesario (sesión, preferencias, caché offline, borradores).
+- **No asumir APIs solo-browser** para datos de app: evitar `localStorage`, `sessionStorage` y cookies como almacén principal.
+
+## Qué usar (orientación)
+
+| Necesidad | Preferir | Evitar |
+|-----------|----------|--------|
+| Clave-valor (token no sensible, flags, preferencias UI) | `@capacitor/preferences` | `localStorage` / `sessionStorage` |
+| Datos estructurados / offline / volumen medio-alto | SQLite (plugin Capacitor) u otra capa vía el servicio | Indexar a mano en Preferences |
+| Secretos (tokens críticos, PII sensible) | Almacén seguro nativo (plugin secure storage) + nunca en Preferences en claro | Guardar secretos en Preferences o logs |
+
+Capacitor ya está en el proyecto (`@capacitor/core` 8.x). Al añadir persistencia, instalar el plugin oficial adecuado (p. ej. `@capacitor/preferences`) y usarlo **solo dentro** del servicio de almacenamiento.
+
+## ❌ Evitar
+
+```typescript
+// En una página o componente
+localStorage.setItem('usuario', JSON.stringify(usuario));
+const raw = localStorage.getItem('usuario');
+```
+
+## ✅ Preferir
+
+```typescript
+// Página / componente: solo habla con el servicio
+await this.almacenamiento.guardar('preferencias.tema', tema);
+const tema = await this.almacenamiento.obtener<string>('preferencias.tema');
+
+// AlmacenamientoService: implementación con Preferences (web + nativo)
+import { Preferences } from '@capacitor/preferences';
+// set / get / remove encapsulados aquí
+```
+
+## Checklist al tocar estado o datos locales
+
+- [ ] ¿Pasa por un servicio de almacenamiento, no por APIs del DOM?
+- [ ] ¿Funciona sin depender de que exista `window.localStorage`?
+- [ ] ¿Lo persistido es el mínimo necesario (no volcar todo el estado de la UI)?
+- [ ] ¿Datos sensibles van a un almacén seguro, no a Preferences en claro?
+- [ ] ¿Claves de storage estables y namespaced (p. ej. `mm.sesion.*`, `mm.prefs.*`)?

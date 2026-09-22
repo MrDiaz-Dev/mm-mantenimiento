@@ -1,4 +1,10 @@
-import { Component } from '@angular/core';
+//#region Imports
+import { Component, inject } from '@angular/core';
+
+import { AutenticacionServicio } from './servicios/autenticacion.servicio';
+import { TemaServicio } from './servicios/tema.servicio';
+//#endregion
+
 @Component({
   selector: 'app-root',
   templateUrl: 'app.component.html',
@@ -6,14 +12,18 @@ import { Component } from '@angular/core';
   standalone: false,
 })
 export class AppComponent {
-  public appPages = [
-    { title: 'Inbox', url: '/folder/inbox', icon: 'mail' },
-    { title: 'Outbox', url: '/folder/outbox', icon: 'paper-plane' },
-    { title: 'Favorites', url: '/folder/favorites', icon: 'heart' },
-    { title: 'Archived', url: '/folder/archived', icon: 'archive' },
-    { title: 'Trash', url: '/folder/trash', icon: 'trash' },
-    { title: 'Spam', url: '/folder/spam', icon: 'warning' },
-  ];
-  public labels = ['Family', 'Friends', 'Notes', 'Work', 'Travel', 'Reminders'];
-  constructor() {}
+  //#region Variables
+  private readonly temaServicio = inject(TemaServicio);
+  /** Arranca getSession / onAuthStateChange al cargar la app. */
+  private readonly autenticacionServicio = inject(AutenticacionServicio);
+  public readonly modoOscuroActivo = this.temaServicio.modoOscuroActivo;
+  //#endregion
+
+  //#region Methods
+  //#region Tema
+  public async alternarTema(): Promise<void> {
+    await this.temaServicio.alternarTema();
+  }
+  //#endregion
+  //#endregion
 }

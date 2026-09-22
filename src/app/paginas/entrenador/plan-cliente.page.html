@@ -1,0 +1,112 @@
+<ion-header [translucent]="true">
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/entrenador" text="Atrás"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Plan</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="contenido">
+  @if (cargando) {
+    <p class="muted">Cargando plan…</p>
+  } @else if (!cliente) {
+    <p class="muted">No se encontró el cliente.</p>
+  } @else {
+    <p class="cliente">{{ nombreVisible(cliente) }}</p>
+
+    <div class="campo">
+      <label for="titulo">Título</label>
+      <input id="titulo" name="titulo" type="text" [(ngModel)]="titulo" />
+    </div>
+
+    <div class="campo">
+      <label for="objetivo">Objetivo</label>
+      <input id="objetivo" name="objetivo" type="text" [(ngModel)]="objetivo" />
+    </div>
+
+    <ion-segment
+      [value]="letraActiva"
+      (ionChange)="cambiarLetra($any($event).detail.value)"
+    >
+      @for (dia of dias; track dia.letra_dia) {
+        <ion-segment-button [value]="dia.letra_dia">
+          <ion-label>{{ dia.letra_dia }}</ion-label>
+        </ion-segment-button>
+      }
+    </ion-segment>
+
+    <div class="campo">
+      <label [attr.for]="'nombre-' + letraActiva">Nombre del día</label>
+      <input
+        [id]="'nombre-' + letraActiva"
+        type="text"
+        [(ngModel)]="diaActivo.nombre"
+      />
+    </div>
+
+    <div class="campo">
+      <label [attr.for]="'enfoque-' + letraActiva">Enfoque</label>
+      <input
+        [id]="'enfoque-' + letraActiva"
+        type="text"
+        [(ngModel)]="diaActivo.enfoque"
+      />
+    </div>
+
+    @if (catalogo.length === 0) {
+      <p class="muted">El catálogo de ejercicios está vacío.</p>
+    }
+
+    @for (linea of diaActivo.ejercicios; track $index) {
+      <article class="linea">
+        <label [attr.for]="'ejercicio-' + letraActiva + '-' + $index">
+          Ejercicio
+        </label>
+        <select
+          [id]="'ejercicio-' + letraActiva + '-' + $index"
+          [(ngModel)]="linea.ejercicio_id"
+        >
+          @for (ejercicio of catalogo; track ejercicio.id) {
+            <option [ngValue]="ejercicio.id">{{ ejercicio.nombre }}</option>
+          }
+        </select>
+
+        <div class="cifras">
+          <div class="campo">
+            <label>Series</label>
+            <input type="number" [(ngModel)]="linea.series" />
+          </div>
+          <div class="campo">
+            <label>Reps</label>
+            <input type="number" [(ngModel)]="linea.repeticiones" />
+          </div>
+          <div class="campo">
+            <label>Kg</label>
+            <input type="number" [(ngModel)]="linea.carga_kg" />
+          </div>
+          <div class="campo">
+            <label>Descanso (s)</label>
+            <input type="number" [(ngModel)]="linea.descanso_segundos" />
+          </div>
+        </div>
+
+        <ion-button
+          fill="outline"
+          color="danger"
+          (click)="quitarEjercicio($index)"
+        >
+          Quitar
+        </ion-button>
+      </article>
+    }
+
+    <ion-button fill="outline" color="secondary" (click)="anadirEjercicio()">
+      Añadir ejercicio
+    </ion-button>
+
+    <ion-button expand="block" color="primary" (click)="guardar()">
+      Guardar
+    </ion-button>
+  }
+</ion-content>

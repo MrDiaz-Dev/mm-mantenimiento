@@ -1,0 +1,65 @@
+---
+description: Diseño responsive mobile-first para la app Ionic/Angular
+globs: ionic/angular/**/*
+alwaysApply: false
+---
+
+# Responsive Mobile-First
+
+Esta app es **estrictamente mobile-first**. Todo UI/CSS en `ionic/angular` debe verse bien en teléfono, tablet y escritorio.
+
+## Principios
+
+- Escribir estilos base para móvil; enriquecer con `min-width` (nunca desktop-first con `max-width` como base).
+- Probar mentalmente tres anchos: teléfono (~360px), tablet (~768px), escritorio (~1024px+).
+- Evitar anchos fijos en px para layouts; preferir `%`, `fr`, `minmax`, `clamp` y unidades fluidas.
+- Touch-first: áreas clicables amplias; no depender de hover para acciones críticas.
+- Tipografía e imágenes escalables; sin desbordes horizontales (`overflow-x`).
+
+## Breakpoints (orientativos)
+
+```scss
+// Base = móvil
+.bloque { padding: 1rem; }
+
+@media (min-width: 768px) {
+  .bloque { padding: 1.5rem; }
+}
+
+@media (min-width: 1024px) {
+  .bloque { padding: 2rem; max-width: 72rem; margin-inline: auto; }
+}
+```
+
+## ❌ Evitar
+
+```scss
+.contenedor { width: 1200px; }
+.grid { display: grid; grid-template-columns: repeat(4, 1fr); } // sin versión móvil
+```
+
+## ✅ Preferir
+
+```scss
+.contenedor { width: 100%; max-width: 72rem; margin-inline: auto; }
+.grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+
+  @media (min-width: 768px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @media (min-width: 1024px) {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+```
+
+## Checklist al tocar UI
+
+- [ ] Base legible y usable en móvil
+- [ ] Tablet y desktop mejoran el layout (no lo rompen)
+- [ ] Sin scroll horizontal ni elementos recortados
+- [ ] Controles usables con el dedo en touch

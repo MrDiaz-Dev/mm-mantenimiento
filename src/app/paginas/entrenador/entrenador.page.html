@@ -1,0 +1,57 @@
+<ion-header [translucent]="true">
+  <ion-toolbar color="primary">
+    <ion-title>Entrenador</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="cerrarSesion()">Salir</ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="contenido">
+  <p>
+    Hola{{ perfil()?.nombre_completo ? ', ' + perfil()?.nombre_completo : '' }}.
+  </p>
+
+  @if (cargando) {
+    <p class="muted">Cargando clientes…</p>
+  } @else {
+    <section aria-labelledby="titulo-vinculados">
+      <h2 id="titulo-vinculados">Clientes vinculados</h2>
+      @if (vinculados.length === 0) {
+        <p class="muted">Aún no tienes alumnos vinculados.</p>
+      } @else {
+        <ion-list>
+          @for (cliente of vinculados; track cliente.id) {
+            <ion-item button (click)="irAlPlan(cliente.id)">
+              <ion-label>
+                <h3>{{ nombreVisible(cliente) }}</h3>
+                <p>{{ cliente.email }}</p>
+              </ion-label>
+            </ion-item>
+          }
+        </ion-list>
+      }
+    </section>
+
+    <section aria-labelledby="titulo-sin-vincular">
+      <h2 id="titulo-sin-vincular">Sin entrenador</h2>
+      @if (sinVincular.length === 0) {
+        <p class="muted">No hay alumnos pendientes de vincular.</p>
+      } @else {
+        <ion-list>
+          @for (cliente of sinVincular; track cliente.id) {
+            <ion-item>
+              <ion-label>
+                <h3>{{ nombreVisible(cliente) }}</h3>
+                <p>{{ cliente.email }}</p>
+              </ion-label>
+              <ion-button slot="end" (click)="vincular(cliente.id)">
+                Vincular
+              </ion-button>
+            </ion-item>
+          }
+        </ion-list>
+      }
+    </section>
+  }
+</ion-content>

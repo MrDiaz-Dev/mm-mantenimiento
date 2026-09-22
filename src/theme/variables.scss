@@ -1,2 +1,263 @@
 // For information on how to create your own theme, please refer to:
 // https://ionicframework.com/docs/theming/
+
+//#region Tokens de marca (--mm-*) — única fuente de hex
+:root {
+  --mm-fondo: #f8faf6;
+  --mm-fondo-rgb: 248, 250, 246;
+  --mm-superficie: #e6f1ce;
+  --mm-superficie-alt: #f8faf6;
+  --mm-texto: #1a1e18;
+  --mm-texto-muted: #5f695a;
+  --mm-borde: #cddcaf;
+
+  --mm-primary: #bbd67e;
+  --mm-primary-rgb: 187, 214, 126;
+  --mm-primary-contrast: #1a1e18;
+  --mm-primary-contrast-rgb: 26, 30, 24;
+  --mm-primary-shade: #aac869;
+  --mm-primary-tint: #c2da8b;
+
+  --mm-secondary: #728948;
+  --mm-secondary-rgb: 114, 137, 72;
+  --mm-secondary-contrast: #ffffff;
+  --mm-secondary-contrast-rgb: 255, 255, 255;
+  --mm-secondary-shade: #64793f;
+  --mm-secondary-tint: #80945a;
+
+  --mm-tertiary: #5f695a;
+  --mm-tertiary-rgb: 95, 105, 90;
+  --mm-tertiary-contrast: #ffffff;
+  --mm-tertiary-contrast-rgb: 255, 255, 255;
+  --mm-tertiary-shade: #545c4f;
+  --mm-tertiary-tint: #6f786b;
+
+  --mm-success: #2dd36f;
+  --mm-success-rgb: 45, 211, 111;
+  --mm-success-contrast: #000000;
+  --mm-success-contrast-rgb: 0, 0, 0;
+  --mm-success-shade: #28ba62;
+  --mm-success-tint: #42d77d;
+
+  --mm-warning: #ffc409;
+  --mm-warning-rgb: 255, 196, 9;
+  --mm-warning-contrast: #000000;
+  --mm-warning-contrast-rgb: 0, 0, 0;
+  --mm-warning-shade: #e0ac08;
+  --mm-warning-tint: #ffca22;
+
+  --mm-danger: #eb445a;
+  --mm-danger-rgb: 235, 68, 90;
+  --mm-danger-contrast: #ffffff;
+  --mm-danger-contrast-rgb: 255, 255, 255;
+  --mm-danger-shade: #cf3c4f;
+  --mm-danger-tint: #ed576b;
+
+  --mm-dark: #1a1e18;
+  --mm-dark-rgb: 26, 30, 24;
+  --mm-dark-contrast: #f8faf6;
+  --mm-dark-contrast-rgb: 248, 250, 246;
+  --mm-dark-shade: #171b15;
+  --mm-dark-tint: #31352f;
+
+  --mm-medium: #5f695a;
+  --mm-medium-rgb: 95, 105, 90;
+  --mm-medium-contrast: #ffffff;
+  --mm-medium-contrast-rgb: 255, 255, 255;
+  --mm-medium-shade: #545c4f;
+  --mm-medium-tint: #6f786b;
+
+  --mm-light: #f8faf6;
+  --mm-light-rgb: 248, 250, 246;
+  --mm-light-contrast: #1a1e18;
+  --mm-light-contrast-rgb: 26, 30, 24;
+  --mm-light-shade: #dadcd8;
+  --mm-light-tint: #f9fbf7;
+}
+//#endregion
+
+//#region Mapeo Ionic ← tokens mm
+:root {
+  --ion-color-primary: var(--mm-primary);
+  --ion-color-primary-rgb: var(--mm-primary-rgb);
+  --ion-color-primary-contrast: var(--mm-primary-contrast);
+  --ion-color-primary-contrast-rgb: var(--mm-primary-contrast-rgb);
+  --ion-color-primary-shade: var(--mm-primary-shade);
+  --ion-color-primary-tint: var(--mm-primary-tint);
+
+  --ion-color-secondary: var(--mm-secondary);
+  --ion-color-secondary-rgb: var(--mm-secondary-rgb);
+  --ion-color-secondary-contrast: var(--mm-secondary-contrast);
+  --ion-color-secondary-contrast-rgb: var(--mm-secondary-contrast-rgb);
+  --ion-color-secondary-shade: var(--mm-secondary-shade);
+  --ion-color-secondary-tint: var(--mm-secondary-tint);
+
+  --ion-color-tertiary: var(--mm-tertiary);
+  --ion-color-tertiary-rgb: var(--mm-tertiary-rgb);
+  --ion-color-tertiary-contrast: var(--mm-tertiary-contrast);
+  --ion-color-tertiary-contrast-rgb: var(--mm-tertiary-contrast-rgb);
+  --ion-color-tertiary-shade: var(--mm-tertiary-shade);
+  --ion-color-tertiary-tint: var(--mm-tertiary-tint);
+
+  --ion-color-success: var(--mm-success);
+  --ion-color-success-rgb: var(--mm-success-rgb);
+  --ion-color-success-contrast: var(--mm-success-contrast);
+  --ion-color-success-contrast-rgb: var(--mm-success-contrast-rgb);
+  --ion-color-success-shade: var(--mm-success-shade);
+  --ion-color-success-tint: var(--mm-success-tint);
+
+  --ion-color-warning: var(--mm-warning);
+  --ion-color-warning-rgb: var(--mm-warning-rgb);
+  --ion-color-warning-contrast: var(--mm-warning-contrast);
+  --ion-color-warning-contrast-rgb: var(--mm-warning-contrast-rgb);
+  --ion-color-warning-shade: var(--mm-warning-shade);
+  --ion-color-warning-tint: var(--mm-warning-tint);
+
+  --ion-color-danger: var(--mm-danger);
+  --ion-color-danger-rgb: var(--mm-danger-rgb);
+  --ion-color-danger-contrast: var(--mm-danger-contrast);
+  --ion-color-danger-contrast-rgb: var(--mm-danger-contrast-rgb);
+  --ion-color-danger-shade: var(--mm-danger-shade);
+  --ion-color-danger-tint: var(--mm-danger-tint);
+
+  --ion-color-dark: var(--mm-dark);
+  --ion-color-dark-rgb: var(--mm-dark-rgb);
+  --ion-color-dark-contrast: var(--mm-dark-contrast);
+  --ion-color-dark-contrast-rgb: var(--mm-dark-contrast-rgb);
+  --ion-color-dark-shade: var(--mm-dark-shade);
+  --ion-color-dark-tint: var(--mm-dark-tint);
+
+  --ion-color-medium: var(--mm-medium);
+  --ion-color-medium-rgb: var(--mm-medium-rgb);
+  --ion-color-medium-contrast: var(--mm-medium-contrast);
+  --ion-color-medium-contrast-rgb: var(--mm-medium-contrast-rgb);
+  --ion-color-medium-shade: var(--mm-medium-shade);
+  --ion-color-medium-tint: var(--mm-medium-tint);
+
+  --ion-color-light: var(--mm-light);
+  --ion-color-light-rgb: var(--mm-light-rgb);
+  --ion-color-light-contrast: var(--mm-light-contrast);
+  --ion-color-light-contrast-rgb: var(--mm-light-contrast-rgb);
+  --ion-color-light-shade: var(--mm-light-shade);
+  --ion-color-light-tint: var(--mm-light-tint);
+
+  --ion-background-color: var(--mm-fondo);
+  --ion-text-color: var(--mm-texto);
+}
+//#endregion
+
+//#region Puente PrimeNG ← tokens mm
+:root {
+  --p-primary-color: var(--mm-primary);
+  --p-primary-contrast-color: var(--mm-primary-contrast);
+  --p-primary-50: #f8faf6;
+  --p-primary-100: #e6f1ce;
+  --p-primary-200: #cddcaf;
+  --p-primary-300: #c8dc96;
+  --p-primary-400: #c2da8b;
+  --p-primary-500: var(--mm-primary);
+  --p-primary-600: var(--mm-primary-shade);
+  --p-primary-700: #728948;
+  --p-primary-800: #586e3a;
+  --p-primary-900: #1a1e18;
+  --p-primary-950: #121510;
+}
+//#endregion
+
+//#region Tokens modo oscuro (marca mm)
+html.modo-oscuro {
+  --mm-fondo: #121510;
+  --mm-fondo-rgb: 18, 21, 16;
+  --mm-superficie: #1c2219;
+  --mm-superficie-alt: #121510;
+  --mm-texto: #f0f5eb;
+  --mm-texto-muted: #a0ac9a;
+  --mm-borde: #2d3628;
+
+  --mm-primary: #c6e385;
+  --mm-primary-rgb: 198, 227, 133;
+  --mm-primary-contrast: #1a1e18;
+  --mm-primary-contrast-rgb: 26, 30, 24;
+  --mm-primary-shade: #aec875;
+  --mm-primary-tint: #d2ee96;
+
+  --mm-secondary: #586e3a;
+  --mm-secondary-rgb: 88, 110, 58;
+  --mm-secondary-contrast: #ffffff;
+  --mm-secondary-contrast-rgb: 255, 255, 255;
+  --mm-secondary-shade: #4d6133;
+  --mm-secondary-tint: #697c4d;
+
+  --mm-tertiary: #a0ac9a;
+  --mm-tertiary-rgb: 160, 172, 154;
+  --mm-tertiary-contrast: #1a1e18;
+  --mm-tertiary-contrast-rgb: 26, 30, 24;
+  --mm-tertiary-shade: #8d9788;
+  --mm-tertiary-tint: #aab4a4;
+
+  --mm-light: #1c2219;
+  --mm-light-rgb: 28, 34, 25;
+  --mm-light-contrast: #f0f5eb;
+  --mm-light-contrast-rgb: 240, 245, 235;
+  --mm-light-shade: #191e16;
+  --mm-light-tint: #333830;
+
+  --mm-dark: #f0f5eb;
+  --mm-dark-rgb: 240, 245, 235;
+  --mm-dark-contrast: #121510;
+  --mm-dark-contrast-rgb: 18, 21, 16;
+
+  --mm-medium: #a0ac9a;
+  --mm-medium-rgb: 160, 172, 154;
+  --mm-medium-shade: #8d9788;
+  --mm-medium-tint: #aab4a4;
+
+  /* Reafirmar mapeos Ionic (ganan a dark.class.css de Ionic) */
+  --ion-color-primary: var(--mm-primary);
+  --ion-color-primary-rgb: var(--mm-primary-rgb);
+  --ion-color-primary-contrast: var(--mm-primary-contrast);
+  --ion-color-primary-contrast-rgb: var(--mm-primary-contrast-rgb);
+  --ion-color-primary-shade: var(--mm-primary-shade);
+  --ion-color-primary-tint: var(--mm-primary-tint);
+
+  --ion-color-secondary: var(--mm-secondary);
+  --ion-color-secondary-rgb: var(--mm-secondary-rgb);
+  --ion-color-secondary-contrast: var(--mm-secondary-contrast);
+  --ion-color-secondary-contrast-rgb: var(--mm-secondary-contrast-rgb);
+  --ion-color-secondary-shade: var(--mm-secondary-shade);
+  --ion-color-secondary-tint: var(--mm-secondary-tint);
+
+  --ion-color-tertiary: var(--mm-tertiary);
+  --ion-color-tertiary-rgb: var(--mm-tertiary-rgb);
+  --ion-color-tertiary-contrast: var(--mm-tertiary-contrast);
+  --ion-color-tertiary-contrast-rgb: var(--mm-tertiary-contrast-rgb);
+  --ion-color-tertiary-shade: var(--mm-tertiary-shade);
+  --ion-color-tertiary-tint: var(--mm-tertiary-tint);
+
+  --ion-color-light: var(--mm-light);
+  --ion-color-light-rgb: var(--mm-light-rgb);
+  --ion-color-light-contrast: var(--mm-light-contrast);
+  --ion-color-light-contrast-rgb: var(--mm-light-contrast-rgb);
+  --ion-color-light-shade: var(--mm-light-shade);
+  --ion-color-light-tint: var(--mm-light-tint);
+
+  --ion-color-dark: var(--mm-dark);
+  --ion-color-dark-rgb: var(--mm-dark-rgb);
+  --ion-color-dark-contrast: var(--mm-dark-contrast);
+  --ion-color-dark-contrast-rgb: var(--mm-dark-contrast-rgb);
+
+  --ion-color-medium: var(--mm-medium);
+  --ion-color-medium-rgb: var(--mm-medium-rgb);
+  --ion-color-medium-shade: var(--mm-medium-shade);
+  --ion-color-medium-tint: var(--mm-medium-tint);
+
+  --ion-background-color: var(--mm-fondo);
+  --ion-text-color: var(--mm-texto);
+
+  --p-primary-color: var(--mm-primary);
+  --p-primary-contrast-color: var(--mm-primary-contrast);
+  --p-primary-500: var(--mm-primary);
+  --p-primary-600: var(--mm-primary-shade);
+  --p-primary-700: var(--mm-primary-shade);
+}
+//#endregion

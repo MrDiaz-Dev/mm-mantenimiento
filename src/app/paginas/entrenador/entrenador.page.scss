@@ -1,0 +1,27 @@
+.contenido {
+  --padding-start: 1.25rem;
+  --padding-end: 1.25rem;
+  --padding-top: 1.25rem;
+  --padding-bottom: 2rem;
+  color: var(--mm-texto);
+}
+
+.muted {
+  color: var(--mm-texto-muted);
+}
+
+h2 {
+  margin: 1.5rem 0 0.75rem;
+  font-size: 1.1rem;
+}
+
+ion-list {
+  background: var(--mm-superficie);
+  border-radius: 0.5rem;
+}
+
+ion-item {
+  --background: var(--mm-superficie);
+  --color: var(--mm-texto);
+}
+

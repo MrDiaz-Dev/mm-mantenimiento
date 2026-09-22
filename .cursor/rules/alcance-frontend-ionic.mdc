@@ -1,0 +1,25 @@
+---
+description: Los cambios de UI/frontend se restringen a ionic/angular
+alwaysApply: true
+---
+
+# Alcance del frontend
+
+Cuando se hable de **UI**, **estilos**, **páginas**, **componentes** o **frontend** de esta app, asumir que el trabajo vive en `ionic/angular/`.
+
+## Dónde trabajar
+
+- Plantillas, SCSS, páginas Ionic, componentes Angular, routing y tema: **`ionic/angular/`**
+- No buscar ni proponer cambios de UI en otras carpetas del monorepo salvo que el usuario lo pida explícitamente.
+
+## Ejemplos
+
+| Pedido | Ubicación esperada |
+|--------|--------------------|
+| Cambiar layout de Inicio | `ionic/angular/src/app/paginas/inicio/` |
+| Ajustar variables de tema | `ionic/angular/src/theme/` / `global.scss` |
+| Nueva página / ruta | `ionic/angular/src/app/` |
+
+## Excepción
+
+Solo salir de `ionic/angular/` si el usuario indica otro path (p. ej. API, Docker, Makefile) o el cambio no es de frontend.

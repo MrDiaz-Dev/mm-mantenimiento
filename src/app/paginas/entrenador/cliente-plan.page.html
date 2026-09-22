@@ -1,0 +1,121 @@
+<ion-header [translucent]="true">
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-button (click)="volver()">Volver</ion-button>
+    </ion-buttons>
+    <ion-title>
+      {{ cliente?.nombre_completo ?? 'Plan del cliente' }}
+    </ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="contenido">
+  <form class="formulario" (ngSubmit)="guardar()" novalidate>
+    <div class="campo">
+      <label for="titulo">Título del plan</label>
+      <input
+        id="titulo"
+        name="titulo"
+        type="text"
+        required
+        [(ngModel)]="titulo"
+      />
+    </div>
+
+    <div class="campo">
+      <label for="objetivo">Objetivo</label>
+      <input
+        id="objetivo"
+        name="objetivo"
+        type="text"
+        [(ngModel)]="objetivo"
+      />
+    </div>
+
+    <ion-segment
+      [value]="letraDiaActiva"
+      (ionChange)="cambiarDia($any($event.detail.value))"
+    >
+      @for (letra of letrasDia; track letra) {
+        <ion-segment-button [value]="letra">Día {{ letra }}</ion-segment-button>
+      }
+    </ion-segment>
+
+    <div class="lineas">
+      @for (linea of lineas; track linea.clave; let i = $index) {
+        <article class="linea">
+          <div class="campo">
+            <label [for]="'ejercicio-' + i">Ejercicio</label>
+            <ion-select
+              [id]="'ejercicio-' + i"
+              [name]="'ejercicio-' + i"
+              interface="popover"
+              [(ngModel)]="linea.ejercicioId"
+            >
+              @for (ejercicio of ejerciciosCatalogo; track ejercicio.id) {
+                <ion-select-option [value]="ejercicio.id">
+                  {{ ejercicio.nombre }}
+                </ion-select-option>
+              }
+            </ion-select>
+          </div>
+
+          <div class="linea__grid">
+            <div class="campo">
+              <label [for]="'series-' + i">Series</label>
+              <input
+                [id]="'series-' + i"
+                type="number"
+                min="1"
+                [(ngModel)]="linea.series"
+                [name]="'series-' + i"
+              />
+            </div>
+            <div class="campo">
+              <label [for]="'reps-' + i">Repeticiones</label>
+              <input
+                [id]="'reps-' + i"
+                type="text"
+                [(ngModel)]="linea.repeticiones"
+                [name]="'reps-' + i"
+              />
+            </div>
+            <div class="campo">
+              <label [for]="'carga-' + i">Carga (kg)</label>
+              <input
+                [id]="'carga-' + i"
+                type="number"
+                min="0"
+                step="0.5"
+                [(ngModel)]="linea.cargaKg"
+                [name]="'carga-' + i"
+              />
+            </div>
+            <div class="campo">
+              <label [for]="'descanso-' + i">Descanso (s)</label>
+              <input
+                [id]="'descanso-' + i"
+                type="number"
+                min="0"
+                [(ngModel)]="linea.descansoSegundos"
+                [name]="'descanso-' + i"
+              />
+            </div>
+          </div>
+
+          <ion-button fill="clear" color="danger" (click)="quitarLinea(i)">
+            Quitar
+          </ion-button>
+        </article>
+      }
+    </div>
+
+    <ion-button expand="block" fill="outline" type="button" (click)="agregarLinea()">
+      Añadir ejercicio
+    </ion-button>
+
+    <ion-button type="submit" expand="block" color="primary">
+      Guardar día {{ letraDiaActiva }}
+    </ion-button>
+  </form>
+</ion-content>
