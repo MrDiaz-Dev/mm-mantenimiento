@@ -1,56 +1,59 @@
 <ion-header [translucent]="true">
-  <ion-toolbar color="primary">
+  <ion-toolbar>
     <ion-title>Entrenador</ion-title>
     <ion-buttons slot="end">
-      <ion-button (click)="cerrarSesion()">Salir</ion-button>
+      <app-boton-tema></app-boton-tema>
+      <ion-button (click)="cerrarSesion()" aria-label="Cerrar sesión">
+        <ion-icon slot="icon-only" name="log-out-outline"></ion-icon>
+      </ion-button>
     </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
 <ion-content [fullscreen]="true" class="contenido">
-  <p>
-    Hola{{ perfil()?.nombre_completo ? ', ' + perfil()?.nombre_completo : '' }}.
-  </p>
+  <h1 class="titulo-pagina">
+    Hola{{ perfil()?.nombre_completo ? ', ' + perfil()?.nombre_completo : '' }}
+  </h1>
 
   @if (cargando) {
     <p class="muted">Cargando clientes…</p>
   } @else {
-    <section aria-labelledby="titulo-vinculados">
-      <h2 id="titulo-vinculados">Clientes vinculados</h2>
-      @if (vinculados.length === 0) {
-        <p class="muted">Aún no tienes alumnos vinculados.</p>
-      } @else {
-        <ion-list>
-          @for (cliente of vinculados; track cliente.id) {
-            <ion-item button (click)="irAlPlan(cliente.id)">
-              <ion-label>
-                <h3>{{ nombreVisible(cliente) }}</h3>
-                <p>{{ cliente.email }}</p>
-              </ion-label>
-            </ion-item>
-          }
-        </ion-list>
+    <section aria-label="Tus alumnos">
+      @if (vinculados.length > 0) {
+        <p class="subtitulo-pagina">
+          {{
+            vinculados.length === 1
+              ? '1 alumno asignado'
+              : vinculados.length + ' alumnos asignados'
+          }}
+        </p>
       }
-    </section>
-
-    <section aria-labelledby="titulo-sin-vincular">
-      <h2 id="titulo-sin-vincular">Sin entrenador</h2>
-      @if (sinVincular.length === 0) {
-        <p class="muted">No hay alumnos pendientes de vincular.</p>
+      @if (vinculados.length === 0) {
+        <div class="estado-vacio">
+          <ion-icon name="people-outline" aria-hidden="true"></ion-icon>
+          <p>Aún no tienes alumnos. El administrador debe asignártelos.</p>
+        </div>
       } @else {
-        <ion-list>
-          @for (cliente of sinVincular; track cliente.id) {
-            <ion-item>
-              <ion-label>
-                <h3>{{ nombreVisible(cliente) }}</h3>
-                <p>{{ cliente.email }}</p>
-              </ion-label>
-              <ion-button slot="end" (click)="vincular(cliente.id)">
-                Vincular
-              </ion-button>
-            </ion-item>
+        <ul class="lista-tarjetas">
+          @for (cliente of vinculados; track cliente.id) {
+            <li>
+              <button
+                type="button"
+                class="tarjeta-persona"
+                (click)="irAlPlan(cliente.id)"
+              >
+                <span class="avatar-iniciales">{{ iniciales(cliente) }}</span>
+                <span class="tarjeta-persona__texto">
+                  <span class="tarjeta-persona__nombre">{{
+                    nombreVisible(cliente)
+                  }}</span>
+                  <span class="tarjeta-persona__meta">{{ cliente.email }}</span>
+                </span>
+                <ion-icon name="chevron-forward" aria-hidden="true"></ion-icon>
+              </button>
+            </li>
           }
-        </ion-list>
+        </ul>
       }
     </section>
   }

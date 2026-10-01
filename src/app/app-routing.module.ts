@@ -5,6 +5,7 @@ import { PreloadAllModules, RouterModule, Routes } from '@angular/router';
 import {
   guardiaAutenticacion,
   guardiaInvitado,
+  guardiaSoloAdmin,
   guardiaSoloCliente,
   guardiaSoloEntrenador,
 } from './guardianes/autenticacion.guardia';
@@ -24,6 +25,12 @@ const routes: Routes = [
       import('./paginas/iniciar-sesion/iniciar-sesion.module').then(
         (m) => m.IniciarSesionPageModule
       ),
+  },
+  {
+    path: 'admin',
+    canActivate: [guardiaAutenticacion, guardiaSoloAdmin],
+    loadChildren: () =>
+      import('./paginas/admin/admin.module').then((m) => m.AdminPageModule),
   },
   {
     path: 'entrenador',

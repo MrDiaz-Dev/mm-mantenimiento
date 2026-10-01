@@ -11,7 +11,7 @@ import { environment } from '../../environments/environment';
 //#endregion
 
 //#region Constants
-export type RolPerfil = 'admin' | 'cliente';
+export type RolPerfil = 'admin' | 'entrenador' | 'cliente';
 
 export interface Perfil {
   id: string;
@@ -57,20 +57,37 @@ export class AutenticacionServicio {
   }
 
   public rutaSegunRol(rol: RolPerfil | null | undefined): string {
-    return rol === 'admin' ? '/entrenador' : '/alumno';
+    if (rol === 'admin') {
+      return '/admin';
+    }
+    if (rol === 'entrenador') {
+      return '/entrenador';
+    }
+    if (rol === 'cliente') {
+      return '/alumno';
+    }
+    return '/iniciar-sesion';
   }
 
   private async inicializarSesion(): Promise<void> {
     try {
       const { data } = await this.supabase.auth.getSession();
       await this.aplicarSesion(data.session);
+    } catch {
+      this.sesion.set(null);
+      this.perfil.set(null);
     } finally {
       this.resolucionInicializacion();
     }
 
     this.supabase.auth.onAuthStateChange(
-      (_evento: AuthChangeEvent, sesion: Session | null) => {
-        void this.aplicarSesion(sesion);
+      (evento: AuthChangeEvent, sesion: Session | null) => {
+        if (evento === 'INITIAL_SESSION') {
+          return;
+        }
+        setTimeout(() => {
+          void this.aplicarSesion(sesion);
+        }, 0);
       }
     );
   }
@@ -83,7 +100,11 @@ export class AutenticacionServicio {
       return;
     }
 
-    await this.obtenerPerfil(sesion.user.id);
+    try {
+      await this.obtenerPerfil(sesion.user.id);
+    } catch {
+      this.perfil.set(null);
+    }
   }
   //#endregion
 

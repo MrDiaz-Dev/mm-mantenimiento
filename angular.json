@@ -33,7 +33,12 @@
             ],
             "styles": [
               "node_modules/primeicons/primeicons.css",
+              "node_modules/@fontsource/space-grotesk/400.css",
+              "node_modules/@fontsource/space-grotesk/500.css",
+              "node_modules/@fontsource/space-grotesk/600.css",
+              "node_modules/@fontsource/space-grotesk/700.css",
               "src/global.scss",
+              "src/theme/componentes.scss",
               "src/theme/variables.scss"
             ],
             "scripts": []
@@ -117,7 +122,12 @@
             ],
             "styles": [
               "node_modules/primeicons/primeicons.css",
+              "node_modules/@fontsource/space-grotesk/400.css",
+              "node_modules/@fontsource/space-grotesk/500.css",
+              "node_modules/@fontsource/space-grotesk/600.css",
+              "node_modules/@fontsource/space-grotesk/700.css",
               "src/global.scss",
+              "src/theme/componentes.scss",
               "src/theme/variables.scss"
             ],
             "scripts": []
@@ -145,7 +155,10 @@
     "schematicCollections": [
       "@ionic/angular-toolkit"
     ],
-    "analytics": false
+    "analytics": false,
+    "cache": {
+      "path": "/tmp/training-ng-cache"
+    }
   },
   "schematics": {
     "@ionic/angular-toolkit:component": {

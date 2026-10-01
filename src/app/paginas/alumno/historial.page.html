@@ -1,0 +1,31 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-title>Historial</ion-title>
+    <ion-buttons slot="end">
+      <app-boton-tema></app-boton-tema>
+      <ion-button (click)="cerrarSesion()" aria-label="Cerrar sesión">
+        <ion-icon slot="icon-only" name="log-out-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="contenido">
+  <h1>Entrenamientos anteriores</h1>
+  @if (cargando) {
+    <p class="muted">Cargando historial…</p>
+  } @else if (historial.length === 0) {
+    <p class="muted">Todavía no hay sesiones registradas.</p>
+  } @else {
+    <ion-list>
+      @for (registro of historial; track registro.id) {
+        <ion-item>
+          <ion-label>
+            <h3>{{ registro.nombre_entrenamiento || 'Entrenamiento' }}</h3>
+            <p>{{ fechaVisible(registro.completado_en) }}</p>
+          </ion-label>
+        </ion-item>
+      }
+    </ion-list>
+  }
+</ion-content>

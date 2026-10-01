@@ -3,9 +3,15 @@ import { Component, inject, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { LoadingController, ToastController } from '@ionic/angular';
 
-import { AutenticacionServicio } from '../../servicios/autenticacion.servicio';
 import {
-  DiaEntrenamiento,
+  AutenticacionServicio,
+  Perfil,
+} from '../../servicios/autenticacion.servicio';
+import {
+  Entrenamiento,
+  formatearEjercicio,
+  formatearPieSerie,
+  MetricaCliente,
   PlanEntrenamiento,
   RutinasServicio,
 } from '../../servicios/rutinas.servicio';
@@ -20,10 +26,14 @@ import {
 export class AlumnoPage implements OnInit {
   //#region Variables
   public readonly perfil = inject(AutenticacionServicio).perfil;
+  public readonly formatearEjercicio = formatearEjercicio;
+  public readonly formatearPieSerie = formatearPieSerie;
   public plan: PlanEntrenamiento | null = null;
-  public diaActivo: DiaEntrenamiento | null = null;
+  public activo: Entrenamiento | null = null;
+  public metrica: MetricaCliente | null = null;
+  public entrenador: Perfil | null = null;
   public cargando = true;
-  public diaCompletado = false;
+  public completado = false;
 
   private readonly autenticacion = inject(AutenticacionServicio);
   private readonly rutinas = inject(RutinasServicio);
@@ -41,8 +51,18 @@ export class AlumnoPage implements OnInit {
     }
 
     try {
-      this.plan = await this.rutinas.obtenerPlanActivo(clienteId);
-      this.diaActivo = this.plan?.dias[0] ?? null;
+      const [plan, metrica] = await Promise.all([
+        this.rutinas.obtenerPlanActivo(clienteId),
+        this.rutinas.obtenerUltimaMetrica(clienteId),
+      ]);
+      this.plan = plan;
+      this.metrica = metrica;
+      this.activo = plan?.entrenamientos[0] ?? null;
+
+      const entrenadorId = this.perfil()?.entrenador_id;
+      if (entrenadorId) {
+        this.entrenador = await this.rutinas.obtenerCliente(entrenadorId);
+      }
     } catch (error: unknown) {
       await this.mostrarToast(this.mensajeError(error));
     } finally {
@@ -50,29 +70,32 @@ export class AlumnoPage implements OnInit {
     }
   }
 
-  //#region Día
-  public cambiarLetra(letra: string | number | undefined): void {
-    if (!this.plan || typeof letra !== 'string') {
+  //#region Ficha
+  public cambiarEntrenamiento(id: string | number | undefined): void {
+    if (!this.plan || typeof id !== 'string') {
       return;
     }
-
-    this.diaActivo = this.plan.dias.find((dia) => dia.letra_dia === letra) ?? null;
-    this.diaCompletado = false;
+    if (this.activo?.id === id) {
+      return;
+    }
+    this.activo =
+      this.plan.entrenamientos.find((item) => item.id === id) ?? null;
+    this.completado = false;
   }
 
-  public async completarDia(): Promise<void> {
-    if (!this.diaActivo) {
+  public async completar(): Promise<void> {
+    if (!this.activo) {
       return;
     }
 
     const carga = await this.loadingCtrl.create({
-      message: 'Marcando día…',
+      message: 'Marcando entrenamiento…',
     });
     await carga.present();
     try {
-      await this.rutinas.completarDia(this.diaActivo.id);
-      this.diaCompletado = true;
-      await this.mostrarToast('Día completado.', 'success');
+      await this.rutinas.completarEntrenamiento(this.activo.id);
+      this.completado = true;
+      await this.mostrarToast('Entrenamiento completado.', 'success');
     } catch (error: unknown) {
       await this.mostrarToast(this.mensajeError(error));
     } finally {
@@ -89,6 +112,13 @@ export class AlumnoPage implements OnInit {
   //#endregion
 
   //#region Feedback
+  public nombreVisible(perfil: Perfil | null): string {
+    if (!perfil) {
+      return 'Sin asignar';
+    }
+    return perfil.nombre_completo?.trim() || perfil.email || 'Sin nombre';
+  }
+
   private mensajeError(error: unknown): string {
     if (error && typeof error === 'object' && 'message' in error) {
       return String((error as { message: string }).message);

@@ -1,0 +1,19 @@
+ion-list {
+  background: transparent;
+  padding: 0;
+}
+
+ion-item {
+  --background: var(--mm-superficie-elevada);
+  --color: var(--mm-texto);
+  margin-bottom: 0.5rem;
+  border: 1px solid var(--mm-borde);
+  border-radius: 0.75rem;
+}
+
+h1 {
+  font-family: var(--mm-fuente-display);
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}

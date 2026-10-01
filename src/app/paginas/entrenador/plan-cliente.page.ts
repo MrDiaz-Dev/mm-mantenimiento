@@ -5,11 +5,7 @@ import { LoadingController, ToastController } from '@ionic/angular';
 
 import { Perfil } from '../../servicios/autenticacion.servicio';
 import {
-  DiaEditable,
-  EjercicioCatalogo,
-  LETRAS_DIA,
-  LetraDia,
-  LineaEjercicio,
+  EntrenamientoResumen,
   RutinasServicio,
 } from '../../servicios/rutinas.servicio';
 //#endregion
@@ -23,11 +19,13 @@ import {
 export class PlanClientePage implements OnInit {
   //#region Variables
   public cliente: Perfil | null = null;
-  public catalogo: EjercicioCatalogo[] = [];
+  public biblioteca: EntrenamientoResumen[] = [];
+  public asignados: EntrenamientoResumen[] = [];
+  public seleccionadoId = '';
   public titulo = '';
   public objetivo = '';
-  public dias: DiaEditable[] = [];
-  public letraActiva: LetraDia = 'A';
+  public pesoKg: number | null = null;
+  public alturaM: number | null = null;
   public cargando = true;
 
   private readonly ruta = inject(ActivatedRoute);
@@ -45,30 +43,27 @@ export class PlanClientePage implements OnInit {
       return;
     }
 
-    this.dias = LETRAS_DIA.map((letra) => this.diaVacio(letra));
-
     try {
-      const [cliente, catalogo, plan] = await Promise.all([
+      const [cliente, biblioteca, plan, metrica] = await Promise.all([
         this.rutinas.obtenerCliente(clienteId),
-        this.rutinas.listarEjercicios(),
+        this.rutinas.listarEntrenamientos(),
         this.rutinas.obtenerPlanActivo(clienteId),
+        this.rutinas.obtenerUltimaMetrica(clienteId),
       ]);
 
       this.cliente = cliente;
-      this.catalogo = catalogo;
+      this.biblioteca = biblioteca;
+      this.pesoKg = metrica?.peso_kg ?? null;
+      this.alturaM = metrica?.altura_m ?? null;
 
       if (plan) {
         this.titulo = plan.titulo;
         this.objetivo = plan.objetivo ?? '';
-        for (const dia of plan.dias) {
-          const destino = this.dias.find((d) => d.letra_dia === dia.letra_dia);
-          if (!destino) {
-            continue;
-          }
-          destino.nombre = dia.nombre ?? `Entrenamiento ${dia.letra_dia}`;
-          destino.enfoque = dia.enfoque ?? '';
-          destino.ejercicios = dia.ejercicios.map((linea) => ({ ...linea }));
-        }
+        this.asignados = plan.entrenamientos.map((item) => ({
+          id: item.id,
+          nombre: item.nombre,
+          descripcion: item.descripcion,
+        }));
       }
     } catch (error: unknown) {
       await this.mostrarToast(this.mensajeError(error));
@@ -77,39 +72,41 @@ export class PlanClientePage implements OnInit {
     }
   }
 
-  //#region Día activo
-  public get diaActivo(): DiaEditable {
-    return this.dias.find((dia) => dia.letra_dia === this.letraActiva)!;
+  //#region Lista de entrenamientos
+  public get disponibles(): EntrenamientoResumen[] {
+    const usados = new Set(this.asignados.map((item) => item.id));
+    return this.biblioteca.filter((item) => !usados.has(item.id));
   }
 
-  public cambiarLetra(letra: string | number | undefined): void {
-    if (typeof letra === 'string' && LETRAS_DIA.includes(letra as LetraDia)) {
-      this.letraActiva = letra as LetraDia;
-    }
-  }
-
-  public anadirEjercicio(): void {
-    const primero = this.catalogo[0];
-    if (!primero) {
-      void this.mostrarToast('No hay ejercicios en el catálogo.');
+  public anadirSeleccionado(): void {
+    const elegido = this.disponibles.find(
+      (item) => item.id === this.seleccionadoId
+    );
+    if (!elegido) {
       return;
     }
-
-    const linea: LineaEjercicio = {
-      ejercicio_id: primero.id,
-      series: 3,
-      repeticiones: 10,
-      carga_kg: null,
-      descanso_segundos: 60,
-      observaciones: null,
-      orden: this.diaActivo.ejercicios.length + 1,
-      ejercicio: primero,
-    };
-    this.diaActivo.ejercicios.push(linea);
+    this.asignados.push(elegido);
+    this.seleccionadoId = this.disponibles[0]?.id ?? '';
   }
 
-  public quitarEjercicio(indice: number): void {
-    this.diaActivo.ejercicios.splice(indice, 1);
+  public quitar(indice: number): void {
+    this.asignados.splice(indice, 1);
+  }
+
+  public subir(indice: number): void {
+    if (indice === 0) {
+      return;
+    }
+    const [item] = this.asignados.splice(indice, 1);
+    this.asignados.splice(indice - 1, 0, item);
+  }
+
+  public bajar(indice: number): void {
+    if (indice >= this.asignados.length - 1) {
+      return;
+    }
+    const [item] = this.asignados.splice(indice, 1);
+    this.asignados.splice(indice + 1, 0, item);
   }
   //#endregion
 
@@ -131,7 +128,8 @@ export class PlanClientePage implements OnInit {
         this.cliente.id,
         this.titulo.trim(),
         this.objetivo.trim(),
-        this.dias
+        this.asignados.map((item) => item.id),
+        { peso_kg: this.pesoKg, altura_m: this.alturaM }
       );
       await this.mostrarToast('Plan guardado.', 'success');
       await this.enrutador.navigateByUrl('/entrenador');
@@ -148,13 +146,15 @@ export class PlanClientePage implements OnInit {
     return perfil.nombre_completo?.trim() || perfil.email || 'Sin nombre';
   }
 
-  private diaVacio(letra: LetraDia): DiaEditable {
-    return {
-      letra_dia: letra,
-      nombre: `Entrenamiento ${letra}`,
-      enfoque: '',
-      ejercicios: [],
-    };
+  public iniciales(perfil: Perfil): string {
+    const fuente = perfil.nombre_completo?.trim() || perfil.email || '?';
+    return fuente
+      .split(/[\s@]+/)
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((parte) => parte.charAt(0))
+      .join('')
+      .toUpperCase();
   }
 
   private mensajeError(error: unknown): string {

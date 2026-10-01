@@ -1,16 +1,27 @@
 <ion-header [translucent]="true">
-  <ion-toolbar color="primary">
-    <ion-title>Alumno</ion-title>
+  <ion-toolbar>
+    <ion-title>Ficha</ion-title>
     <ion-buttons slot="end">
-      <ion-button (click)="cerrarSesion()">Salir</ion-button>
+      <app-boton-tema></app-boton-tema>
+      <ion-button (click)="cerrarSesion()" aria-label="Cerrar sesión">
+        <ion-icon slot="icon-only" name="log-out-outline"></ion-icon>
+      </ion-button>
     </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
 <ion-content [fullscreen]="true" class="contenido">
   <p>
-    Hola{{ perfil()?.nombre_completo ? ', ' + perfil()?.nombre_completo : '' }}.
+    Alumno:
+    <strong>{{ nombreVisible(perfil()) }}</strong>
   </p>
+  <p>
+    Entrenador:
+    <strong>{{ nombreVisible(entrenador) }}</strong>
+  </p>
+  @if (metrica?.peso_kg != null) {
+    <p>Peso: {{ metrica?.peso_kg }} kg</p>
+  }
 
   @if (cargando) {
     <p class="muted">Cargando rutina…</p>
@@ -22,71 +33,65 @@
       <p class="muted">{{ plan.objetivo }}</p>
     }
 
-    @if (plan.dias.length === 0) {
-      <p class="muted">El plan no tiene días aún.</p>
+    @if (plan.entrenamientos.length === 0) {
+      <p class="muted">El plan no tiene entrenamientos aún.</p>
     } @else {
       <ion-segment
-        [value]="diaActivo?.letra_dia"
-        (ionChange)="cambiarLetra($any($event).detail.value)"
+        scrollable
+        [value]="activo?.id"
+        (ionChange)="cambiarEntrenamiento($any($event).detail.value)"
       >
-        @for (dia of plan.dias; track dia.id) {
-          <ion-segment-button [value]="dia.letra_dia">
-            <ion-label>{{ dia.letra_dia }}</ion-label>
+        @for (item of plan.entrenamientos; track item.id) {
+          <ion-segment-button [value]="item.id">
+            <ion-label>{{ item.nombre }}</ion-label>
           </ion-segment-button>
         }
       </ion-segment>
 
-      @if (diaActivo) {
-        <h3>{{ diaActivo.nombre || 'Entrenamiento ' + diaActivo.letra_dia }}</h3>
-        @if (diaActivo.enfoque) {
-          <p class="muted">{{ diaActivo.enfoque }}</p>
-        }
+      @if (activo) {
+        <article class="ficha">
+          <h1>{{ activo.nombre }}</h1>
+          @if (activo.descripcion) {
+            <p class="muted">{{ activo.descripcion }}</p>
+          }
 
-        @for (linea of diaActivo.ejercicios; track $index) {
-          <article class="tarjeta">
-            <h4>{{ linea.ejercicio?.nombre || 'Ejercicio' }}</h4>
-            <p>
-              {{ linea.series ?? '—' }} series ·
-              {{ linea.repeticiones ?? '—' }} reps ·
-              {{ linea.carga_kg ?? '—' }} kg
-              @if (linea.descanso_segundos) {
-                · {{ linea.descanso_segundos }} s de descanso
+          @for (bloque of activo.bloques; track $index) {
+            <section class="bloque">
+              <h3>{{ bloque.nombre }}</h3>
+              @for (serie of bloque.series; track $index) {
+                <ul>
+                  @for (linea of serie.ejercicios; track $index) {
+                    <li>
+                      <span>{{ formatearEjercicio(linea) }}</span>
+                      @if (linea.ejercicio?.url_recurso) {
+                        <a
+                          class="tecnica"
+                          [href]="linea.ejercicio?.url_recurso"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          Ver técnica
+                        </a>
+                      }
+                    </li>
+                  }
+                </ul>
+                <p class="pie">{{ formatearPieSerie(serie) }}</p>
               }
-            </p>
-            <div class="imagenes">
-              <figure>
-                @if (linea.ejercicio?.url_inicio) {
-                  <img
-                    [src]="linea.ejercicio?.url_inicio"
-                    alt="Postura inicial"
-                  />
-                } @else {
-                  <div class="marcador">Inicio</div>
-                }
-                <figcaption>Inicio</figcaption>
-              </figure>
-              <figure>
-                @if (linea.ejercicio?.url_final) {
-                  <img
-                    [src]="linea.ejercicio?.url_final"
-                    alt="Postura final"
-                  />
-                } @else {
-                  <div class="marcador">Final</div>
-                }
-                <figcaption>Final</figcaption>
-              </figure>
-            </div>
-          </article>
-        }
+              @if (bloque.notas) {
+                <p class="notas">{{ bloque.notas }}</p>
+              }
+            </section>
+          }
+        </article>
 
         <ion-button
           expand="block"
           color="primary"
-          [disabled]="diaCompletado"
-          (click)="completarDia()"
+          [disabled]="completado"
+          (click)="completar()"
         >
-          {{ diaCompletado ? 'Día completado' : 'Completar día' }}
+          {{ completado ? 'Entrenamiento completado' : 'Completar entrenamiento' }}
         </ion-button>
       }
     }

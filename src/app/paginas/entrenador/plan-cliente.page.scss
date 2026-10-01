@@ -1,59 +1,77 @@
-.contenido {
-  --padding-start: 1.25rem;
-  --padding-end: 1.25rem;
-  --padding-top: 1.25rem;
-  --padding-bottom: 2rem;
-  color: var(--mm-texto);
+.cabecera-alumno {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  margin-bottom: 0.5rem;
 }
 
-.muted {
-  color: var(--mm-texto-muted);
-}
-
-.cliente {
+.cabecera-alumno__nombre {
+  margin: 0;
+  font-family: var(--mm-fuente-display);
+  font-size: 1.35rem;
   font-weight: 700;
-  margin: 0 0 1rem;
+  letter-spacing: -0.02em;
 }
 
-.campo {
+.cabecera-alumno .muted {
+  margin: 0.15rem 0 0;
+}
+
+.fila-anadir {
+  display: flex;
+  align-items: stretch;
+  gap: 0.5rem;
+}
+
+.fila-anadir p-select {
+  flex: 1;
+  min-width: 0;
+}
+
+.fila-anadir ion-button {
+  margin: 0;
+  flex-shrink: 0;
+  height: 36px;
+  font-weight: 500;
+  --border-radius: 999px;
+}
+
+.lista-asignados {
+  margin: 0;
+  padding: 0;
+  list-style: none;
   display: flex;
   flex-direction: column;
-  gap: 0.4rem;
-  margin-bottom: 0.85rem;
+  gap: 0.55rem;
 }
 
-.campo label {
+.lista-asignados li {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.55rem 0.65rem 0.55rem 0.85rem;
+  border: 1px solid var(--mm-borde);
+  border-radius: 0.6rem;
+  background: var(--mm-superficie-elevada);
+}
+
+.lista-asignados__orden {
+  flex-shrink: 0;
+  font-family: var(--mm-fuente-display);
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--mm-secondary);
+  min-width: 1.25rem;
+}
+
+.lista-asignados__nombre {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
   font-weight: 600;
 }
 
-.campo input,
-.linea select {
-  box-sizing: border-box;
-  width: 100%;
-  min-height: 44px;
-  padding: 0.6rem 0.85rem;
-  border: 1px solid var(--mm-borde);
-  border-radius: 0.5rem;
-  background: var(--mm-fondo);
-  color: var(--mm-texto);
-  font: inherit;
-}
-
-ion-segment {
-  margin: 0.5rem 0 1rem;
-}
-
-.linea {
-  background: var(--mm-superficie);
-  border: 1px solid var(--mm-borde);
-  border-radius: 0.5rem;
-  padding: 0.9rem;
-  margin-bottom: 0.85rem;
-}
-
-.cifras {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0.6rem;
-  margin: 0.75rem 0;
+.acciones {
+  display: flex;
+  flex-shrink: 0;
 }

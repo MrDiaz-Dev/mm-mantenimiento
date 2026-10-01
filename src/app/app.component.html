@@ -1,24 +1,3 @@
 <ion-app>
   <ion-router-outlet></ion-router-outlet>
-
-  <ion-fab
-    class="fab-tema"
-    slot="fixed"
-    vertical="bottom"
-    horizontal="end"
-  >
-    <ion-fab-button
-      color="primary"
-      (click)="alternarTema()"
-      [attr.aria-label]="
-        modoOscuroActivo()
-          ? 'Activar modo claro'
-          : 'Activar modo oscuro'
-      "
-    >
-      <ion-icon
-        [name]="modoOscuroActivo() ? 'sunny-outline' : 'moon-outline'"
-      ></ion-icon>
-    </ion-fab-button>
-  </ion-fab>
 </ion-app>

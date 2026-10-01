@@ -3,34 +3,37 @@
 
 //#region Tokens de marca (--mm-*) — única fuente de hex
 :root {
-  --mm-fondo: #f8faf6;
-  --mm-fondo-rgb: 248, 250, 246;
-  --mm-superficie: #e6f1ce;
-  --mm-superficie-alt: #f8faf6;
-  --mm-texto: #1a1e18;
-  --mm-texto-muted: #5f695a;
-  --mm-borde: #cddcaf;
+  --mm-fondo: #f4f4f5;
+  --mm-fondo-rgb: 244, 244, 245;
+  --mm-superficie: #f3f3f3;
+  --mm-superficie-alt: #f4f4f5;
+  --mm-superficie-elevada: #ffffff;
+  --mm-texto: #111111;
+  --mm-texto-muted: #8a8a8a;
+  --mm-borde: #ececec;
+  --mm-fuente: 'Space Grotesk', system-ui, sans-serif;
+  --mm-fuente-display: 'Space Grotesk', system-ui, sans-serif;
 
-  --mm-primary: #bbd67e;
-  --mm-primary-rgb: 187, 214, 126;
-  --mm-primary-contrast: #1a1e18;
-  --mm-primary-contrast-rgb: 26, 30, 24;
-  --mm-primary-shade: #aac869;
-  --mm-primary-tint: #c2da8b;
+  --mm-primary: #c8f04a;
+  --mm-primary-rgb: 200, 240, 74;
+  --mm-primary-contrast: #111111;
+  --mm-primary-contrast-rgb: 17, 17, 17;
+  --mm-primary-shade: #b0d341;
+  --mm-primary-tint: #cef15c;
 
-  --mm-secondary: #728948;
-  --mm-secondary-rgb: 114, 137, 72;
+  --mm-secondary: #111111;
+  --mm-secondary-rgb: 17, 17, 17;
   --mm-secondary-contrast: #ffffff;
   --mm-secondary-contrast-rgb: 255, 255, 255;
-  --mm-secondary-shade: #64793f;
-  --mm-secondary-tint: #80945a;
+  --mm-secondary-shade: #0f0f0f;
+  --mm-secondary-tint: #292929;
 
-  --mm-tertiary: #5f695a;
-  --mm-tertiary-rgb: 95, 105, 90;
+  --mm-tertiary: #8a8a8a;
+  --mm-tertiary-rgb: 138, 138, 138;
   --mm-tertiary-contrast: #ffffff;
   --mm-tertiary-contrast-rgb: 255, 255, 255;
-  --mm-tertiary-shade: #545c4f;
-  --mm-tertiary-tint: #6f786b;
+  --mm-tertiary-shade: #797979;
+  --mm-tertiary-tint: #969696;
 
   --mm-success: #2dd36f;
   --mm-success-rgb: 45, 211, 111;
@@ -53,26 +56,26 @@
   --mm-danger-shade: #cf3c4f;
   --mm-danger-tint: #ed576b;
 
-  --mm-dark: #1a1e18;
-  --mm-dark-rgb: 26, 30, 24;
-  --mm-dark-contrast: #f8faf6;
-  --mm-dark-contrast-rgb: 248, 250, 246;
-  --mm-dark-shade: #171b15;
-  --mm-dark-tint: #31352f;
+  --mm-dark: #111111;
+  --mm-dark-rgb: 17, 17, 17;
+  --mm-dark-contrast: #ffffff;
+  --mm-dark-contrast-rgb: 255, 255, 255;
+  --mm-dark-shade: #0f0f0f;
+  --mm-dark-tint: #292929;
 
-  --mm-medium: #5f695a;
-  --mm-medium-rgb: 95, 105, 90;
+  --mm-medium: #8a8a8a;
+  --mm-medium-rgb: 138, 138, 138;
   --mm-medium-contrast: #ffffff;
   --mm-medium-contrast-rgb: 255, 255, 255;
-  --mm-medium-shade: #545c4f;
-  --mm-medium-tint: #6f786b;
+  --mm-medium-shade: #797979;
+  --mm-medium-tint: #969696;
 
-  --mm-light: #f8faf6;
-  --mm-light-rgb: 248, 250, 246;
-  --mm-light-contrast: #1a1e18;
-  --mm-light-contrast-rgb: 26, 30, 24;
-  --mm-light-shade: #dadcd8;
-  --mm-light-tint: #f9fbf7;
+  --mm-light: #f4f4f5;
+  --mm-light-rgb: 244, 244, 245;
+  --mm-light-contrast: #111111;
+  --mm-light-contrast-rgb: 17, 17, 17;
+  --mm-light-shade: #d7d7d8;
+  --mm-light-tint: #f5f5f6;
 }
 //#endregion
 
@@ -143,6 +146,7 @@
 
   --ion-background-color: var(--mm-fondo);
   --ion-text-color: var(--mm-texto);
+  --ion-font-family: var(--mm-fuente);
 }
 //#endregion
 
@@ -150,67 +154,68 @@
 :root {
   --p-primary-color: var(--mm-primary);
   --p-primary-contrast-color: var(--mm-primary-contrast);
-  --p-primary-50: #f8faf6;
-  --p-primary-100: #e6f1ce;
-  --p-primary-200: #cddcaf;
-  --p-primary-300: #c8dc96;
-  --p-primary-400: #c2da8b;
+  --p-primary-50: #f7fee6;
+  --p-primary-100: #ecfcc4;
+  --p-primary-200: #d9f88a;
+  --p-primary-300: #cef35f;
+  --p-primary-400: #c8f04a;
   --p-primary-500: var(--mm-primary);
   --p-primary-600: var(--mm-primary-shade);
-  --p-primary-700: #728948;
-  --p-primary-800: #586e3a;
-  --p-primary-900: #1a1e18;
-  --p-primary-950: #121510;
+  --p-primary-700: #7a9c18;
+  --p-primary-800: #3d4a14;
+  --p-primary-900: #111111;
+  --p-primary-950: #0a0a0a;
 }
 //#endregion
 
 //#region Tokens modo oscuro (marca mm)
 html.modo-oscuro {
-  --mm-fondo: #121510;
-  --mm-fondo-rgb: 18, 21, 16;
-  --mm-superficie: #1c2219;
-  --mm-superficie-alt: #121510;
-  --mm-texto: #f0f5eb;
-  --mm-texto-muted: #a0ac9a;
-  --mm-borde: #2d3628;
+  --mm-fondo: #111111;
+  --mm-fondo-rgb: 17, 17, 17;
+  --mm-superficie: #1c1c1c;
+  --mm-superficie-alt: #111111;
+  --mm-superficie-elevada: #1a1a1a;
+  --mm-texto: #f5f5f5;
+  --mm-texto-muted: #9a9a9a;
+  --mm-borde: #2a2a2a;
 
-  --mm-primary: #c6e385;
-  --mm-primary-rgb: 198, 227, 133;
-  --mm-primary-contrast: #1a1e18;
-  --mm-primary-contrast-rgb: 26, 30, 24;
-  --mm-primary-shade: #aec875;
-  --mm-primary-tint: #d2ee96;
+  --mm-primary: #c8f04a;
+  --mm-primary-rgb: 200, 240, 74;
+  --mm-primary-contrast: #111111;
+  --mm-primary-contrast-rgb: 17, 17, 17;
+  --mm-primary-shade: #b0d341;
+  --mm-primary-tint: #cef15c;
 
-  --mm-secondary: #586e3a;
-  --mm-secondary-rgb: 88, 110, 58;
-  --mm-secondary-contrast: #ffffff;
-  --mm-secondary-contrast-rgb: 255, 255, 255;
-  --mm-secondary-shade: #4d6133;
-  --mm-secondary-tint: #697c4d;
+  --mm-secondary: #f5f5f5;
+  --mm-secondary-rgb: 245, 245, 245;
+  --mm-secondary-contrast: #111111;
+  --mm-secondary-contrast-rgb: 17, 17, 17;
+  --mm-secondary-shade: #d8d8d8;
+  --mm-secondary-tint: #f6f6f6;
 
-  --mm-tertiary: #a0ac9a;
-  --mm-tertiary-rgb: 160, 172, 154;
-  --mm-tertiary-contrast: #1a1e18;
-  --mm-tertiary-contrast-rgb: 26, 30, 24;
-  --mm-tertiary-shade: #8d9788;
-  --mm-tertiary-tint: #aab4a4;
+  --mm-tertiary: #9a9a9a;
+  --mm-tertiary-rgb: 154, 154, 154;
+  --mm-tertiary-contrast: #111111;
+  --mm-tertiary-contrast-rgb: 17, 17, 17;
+  --mm-tertiary-shade: #878787;
+  --mm-tertiary-tint: #a4a4a4;
 
-  --mm-light: #1c2219;
-  --mm-light-rgb: 28, 34, 25;
-  --mm-light-contrast: #f0f5eb;
-  --mm-light-contrast-rgb: 240, 245, 235;
-  --mm-light-shade: #191e16;
-  --mm-light-tint: #333830;
+  --mm-light: #1c1c1c;
+  --mm-light-rgb: 28, 28, 28;
+  --mm-light-contrast: #f5f5f5;
+  --mm-light-contrast-rgb: 245, 245, 245;
+  --mm-light-shade: #191919;
+  --mm-light-tint: #333333;
 
-  --mm-dark: #f0f5eb;
-  --mm-dark-rgb: 240, 245, 235;
-  --mm-dark-contrast: #121510;
-  --mm-dark-contrast-rgb: 18, 21, 16;
+  --mm-dark: #f5f5f5;
+  --mm-dark-rgb: 245, 245, 245;
+  --mm-dark-contrast: #111111;
+  --mm-dark-contrast-rgb: 17, 17, 17;
 
-  --mm-medium: #a0ac9a;
-  --mm-medium-rgb: 160, 172, 154;
-  --mm-medium-shade: #8d9788;
-  --mm-medium-tint: #aab4a4;
+  --mm-medium: #9a9a9a;
+  --mm-medium-rgb: 154, 154, 154;
+  --mm-medium-shade: #878787;
+  --mm-medium-tint: #a4a4a4;
 
   /* Reafirmar mapeos Ionic (ganan a dark.class.css de Ionic) */
   --ion-color-primary: var(--mm-primary);
@@ -253,6 +258,7 @@ html.modo-oscuro {
 
   --ion-background-color: var(--mm-fondo);
   --ion-text-color: var(--mm-texto);
+  --ion-font-family: var(--mm-fuente);
 
   --p-primary-color: var(--mm-primary);
   --p-primary-contrast-color: var(--mm-primary-contrast);

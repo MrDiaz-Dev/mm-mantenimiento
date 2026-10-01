@@ -1,0 +1,51 @@
+---
+description: Look & feel UX/UI de la app (estilo neobank minimalista, claro, acento lima)
+globs: src/**/*.{html,scss,ts}
+alwaysApply: false
+---
+
+# Look & Feel UI/UX
+
+Estética **fintech minimalista**: fondo claro, tarjetas blancas muy redondeadas, tipografía grotesca en negrita, **negro casi puro** para acciones y **verde lima** como único acento. Mucho aire, poco ruido.
+
+## Color (usar siempre tokens `--mm-*` / `--ion-color-*`, nunca hex sueltos)
+
+- Fondo de página: gris muy claro (`--mm-fondo`). Tarjetas: blanco (`--mm-superficie-elevada`).
+- Texto principal casi negro (`--mm-texto`); secundario gris (`--mm-texto-muted`).
+- CTA primario: **fondo negro** (`--ion-color-dark`) con texto blanco.
+- Acento lima (`--ion-color-primary`) solo para: tarjeta destacada, toggles activos, badges positivos, ítem activo del tab bar. Nunca como fondo de pantalla completa.
+- Filas/acciones secundarias: gris claro sobre blanco (p. ej. `--mm-fondo`).
+
+## Forma y superficie
+
+- Radios grandes: tarjetas `20–24px`, filas/inputs `14–16px`, botones e insignias **pill** (`999px`).
+- Sombras casi imperceptibles o ninguna; separar por contraste de fondo, no por bordes.
+- Botón "atrás": cuadrado redondeado blanco con borde/sombra sutil y chevron.
+
+## Tipografía (`--mm-fuente-display` para títulos)
+
+- Saludo/título de pantalla: `600–700`, centrado en pantallas secundarias.
+- Montos destacados: muy grandes (`~2.25rem`), `700`.
+- Títulos de sección (`Your cards`, `Transactions`): `~1.15rem`, `600`; acción a la derecha en negrita pequeña (`See all`, `Edit`, `+ New card`).
+- Labels sobre valores: pequeño y gris; valor debajo, oscuro y regular.
+
+## Patrones de componentes
+
+- **Tarjeta de saldo**: label gris, monto grande, icono ojo para ocultar, CTA negro pill a ancho completo.
+- **Carrusel horizontal** de tarjetas con la siguiente asomando (scroll-snap); la seleccionada lleva borde negro grueso.
+- **Lista de acciones**: filas gris claro, icono outline a la izquierda, texto, chevron `>` a la derecha.
+- **Lista de datos** (perfil): icono outline + label gris + valor, sin divisores.
+- **Transacciones**: logo circular, nombre en negrita + fecha gris; monto a la derecha y badge lima pill debajo (`+$1.65`).
+- **Settings**: filas con título + subtítulo gris, `ion-toggle` lima o chevron.
+- **Avatar** de perfil circular grande con botón de editar superpuesto abajo-derecha.
+- **Tab bar** blanco, 5 ítems, iconos outline finos + label pequeño; activo en negro (o avatar con anillo lima).
+- Pantallas de aviso/onboarding: ilustración lineal lima, texto alineado a la izquierda, CTA negro pill abajo y enlace secundario en texto.
+
+## Iconografía
+
+- `ionicons` variante **`-outline`**, trazo fino, color `--mm-texto`. No mezclar con `-sharp` ni rellenos (salvo tab activo).
+
+## ❌ Evitar
+
+- Gradientes, sombras fuertes, bordes visibles en tarjetas, más de un color de acento.
+- Botones primarios en lima con texto blanco o CTAs rectangulares.

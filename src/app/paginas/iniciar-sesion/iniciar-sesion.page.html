@@ -1,3 +1,11 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-buttons slot="end">
+      <app-boton-tema></app-boton-tema>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
 <ion-content [fullscreen]="true">
   <div class="pantalla">
     <section class="panel" aria-labelledby="titulo-sesion">
@@ -44,6 +52,8 @@
               id="nombreCompleto"
               name="nombreCompleto"
               type="text"
+              pInputText
+              fluid
               autocomplete="name"
               required
               [(ngModel)]="nombreCompleto"
@@ -66,7 +76,7 @@
                 <input
                   type="radio"
                   name="rol"
-                  value="admin"
+                  value="entrenador"
                   [(ngModel)]="rol"
                 />
                 Entrenador
@@ -81,6 +91,8 @@
             id="correo"
             name="correo"
             type="email"
+            pInputText
+            fluid
             autocomplete="username"
             required
             [(ngModel)]="correo"
@@ -89,15 +101,14 @@
 
         <div class="campo">
           <label for="contrasena">Contraseña</label>
-          <input
-            id="contrasena"
+          <p-password
+            inputId="contrasena"
             name="contrasena"
-            type="password"
-            [attr.autocomplete]="
-              modo === 'entrar' ? 'current-password' : 'new-password'
-            "
-            required
             [(ngModel)]="contrasena"
+            [feedback]="false"
+            [autocomplete]="modo === 'entrar' ? 'current-password' : 'new-password'"
+            fluid
+            appendTo="body"
           />
         </div>
 

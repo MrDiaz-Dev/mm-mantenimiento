@@ -12,7 +12,7 @@ export const guardiaAutenticacion: CanActivateFn = async () => {
 
   await autenticacion.esperarInicializacion();
 
-  if (autenticacion.sesion()) {
+  if (autenticacion.sesion() && autenticacion.perfil()) {
     return true;
   }
 
@@ -25,46 +25,38 @@ export const guardiaInvitado: CanActivateFn = async () => {
 
   await autenticacion.esperarInicializacion();
 
-  if (!autenticacion.sesion()) {
+  const perfil = autenticacion.perfil();
+  if (!autenticacion.sesion() || !perfil) {
     return true;
   }
 
-  return enrutador.parseUrl(
-    autenticacion.rutaSegunRol(autenticacion.perfil()?.rol)
-  );
+  return enrutador.parseUrl(autenticacion.rutaSegunRol(perfil.rol));
 };
 
-export const guardiaSoloEntrenador: CanActivateFn = async () => {
-  const autenticacion = inject(AutenticacionServicio);
-  const enrutador = inject(Router);
+export const guardiaSoloAdmin: CanActivateFn = crearGuardiaDeRol('admin');
+export const guardiaSoloEntrenador: CanActivateFn =
+  crearGuardiaDeRol('entrenador');
+export const guardiaSoloCliente: CanActivateFn = crearGuardiaDeRol('cliente');
 
-  await autenticacion.esperarInicializacion();
+function crearGuardiaDeRol(
+  rolExigido: 'admin' | 'entrenador' | 'cliente'
+): CanActivateFn {
+  return async () => {
+    const autenticacion = inject(AutenticacionServicio);
+    const enrutador = inject(Router);
 
-  if (!autenticacion.sesion()) {
-    return enrutador.parseUrl('/iniciar-sesion');
-  }
+    await autenticacion.esperarInicializacion();
 
-  if (autenticacion.perfil()?.rol === 'admin') {
-    return true;
-  }
+    const perfil = autenticacion.perfil();
+    if (!autenticacion.sesion() || !perfil) {
+      return enrutador.parseUrl('/iniciar-sesion');
+    }
 
-  return enrutador.parseUrl('/alumno');
-};
+    if (perfil.rol === rolExigido) {
+      return true;
+    }
 
-export const guardiaSoloCliente: CanActivateFn = async () => {
-  const autenticacion = inject(AutenticacionServicio);
-  const enrutador = inject(Router);
-
-  await autenticacion.esperarInicializacion();
-
-  if (!autenticacion.sesion()) {
-    return enrutador.parseUrl('/iniciar-sesion');
-  }
-
-  if (autenticacion.perfil()?.rol === 'cliente') {
-    return true;
-  }
-
-  return enrutador.parseUrl('/entrenador');
-};
+    return enrutador.parseUrl(autenticacion.rutaSegunRol(perfil.rol));
+  };
+}
 //#endregion

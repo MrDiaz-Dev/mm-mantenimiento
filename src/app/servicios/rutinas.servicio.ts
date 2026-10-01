@@ -5,50 +5,151 @@ import { AutenticacionServicio, Perfil } from './autenticacion.servicio';
 //#endregion
 
 //#region Constants
-export const LETRAS_DIA = ['A', 'B', 'C', 'D', 'E', 'F', 'G'] as const;
-export type LetraDia = (typeof LETRAS_DIA)[number];
+export const TIPOS_EQUIPO = [
+  'Barra',
+  'Mancuernas',
+  'Máquina',
+  'Polea',
+  'Peso corporal',
+  'BEC',
+  'Suspensión',
+] as const;
+
+export const TIPOS_ESTRUCTURA = [
+  'serie_lineal',
+  'superserie',
+  'circuito',
+  'tabata',
+] as const;
+
+export type TipoEquipo = (typeof TIPOS_EQUIPO)[number];
+export type TipoEstructura = (typeof TIPOS_ESTRUCTURA)[number];
+
+export const ETIQUETAS_ESTRUCTURA: Record<TipoEstructura, string> = {
+  serie_lineal: 'Serie lineal',
+  superserie: 'Superserie',
+  circuito: 'Circuito',
+  tabata: 'Tabata',
+};
+
+const SELECT_ARBOL_ENTRENAMIENTO = `
+  id, nombre, descripcion,
+  bloques (
+    id, nombre, orden, notas,
+    bloque_series (
+      id, orden, tipo_estructura, cantidad_series, descanso_post_serie_segundos,
+      ejercicios_serie (
+        id, ejercicio_id, orden, codigo_visible, equipo,
+        repeticiones, tiempo_trabajo_segundos, tiempo_descanso_segundos, rpe,
+        ejercicios (id, nombre, grupo_muscular, equipo_base, url_recurso, descripcion)
+      )
+    )
+  )
+`;
 
 export interface EjercicioCatalogo {
   id: string;
   nombre: string;
   grupo_muscular: string | null;
-  equipo: string | null;
-  url_inicio: string | null;
-  url_final: string | null;
+  equipo_base: string | null;
+  url_recurso: string | null;
+  descripcion: string | null;
 }
 
-export interface LineaEjercicio {
+export interface EjercicioSerie {
+  id?: string;
   ejercicio_id: string;
-  series: number | null;
-  repeticiones: number | null;
-  carga_kg: number | null;
-  descanso_segundos: number | null;
-  observaciones: string | null;
   orden: number;
+  codigo_visible: string | null;
+  equipo: string | null;
+  repeticiones: number | null;
+  tiempo_trabajo_segundos: number | null;
+  tiempo_descanso_segundos: number | null;
+  rpe: number | null;
   ejercicio: EjercicioCatalogo | null;
 }
 
-export interface DiaEntrenamiento {
-  id: string;
-  letra_dia: LetraDia;
-  nombre: string | null;
-  enfoque: string | null;
+export interface BloqueSerie {
+  id?: string;
   orden: number;
-  ejercicios: LineaEjercicio[];
+  tipo_estructura: TipoEstructura;
+  cantidad_series: number;
+  descanso_post_serie_segundos: number | null;
+  ejercicios: EjercicioSerie[];
+}
+
+export interface Bloque {
+  id?: string;
+  nombre: string;
+  orden: number;
+  notas: string | null;
+  series: BloqueSerie[];
+}
+
+export interface Entrenamiento {
+  id: string;
+  nombre: string;
+  descripcion: string | null;
+  bloques: Bloque[];
+}
+
+export interface EntrenamientoResumen {
+  id: string;
+  nombre: string;
+  descripcion: string | null;
 }
 
 export interface PlanEntrenamiento {
   id: string;
   titulo: string;
   objetivo: string | null;
-  dias: DiaEntrenamiento[];
+  entrenamientos: Entrenamiento[];
 }
 
-export interface DiaEditable {
-  letra_dia: LetraDia;
-  nombre: string;
-  enfoque: string;
-  ejercicios: LineaEjercicio[];
+export interface MetricaCliente {
+  peso_kg: number | null;
+  altura_m: number | null;
+  registrado_en?: string;
+}
+
+export interface RegistroSesion {
+  id: string;
+  completado_en: string;
+  nombre_entrenamiento: string | null;
+}
+
+/**
+ * Arma la línea de la ficha (A1. Press de banca c/Barra x5reps @RPE 8).
+ */
+export function formatearEjercicio(linea: EjercicioSerie): string {
+  const codigo = linea.codigo_visible?.trim();
+  const nombre = linea.ejercicio?.nombre ?? 'Ejercicio';
+  const cabeza = codigo ? `${codigo}. ${nombre}` : nombre;
+  const equipo = linea.equipo?.trim();
+  const conEquipo =
+    equipo && equipo !== 'Peso corporal' ? `${cabeza} c/${equipo}` : cabeza;
+
+  if (linea.tiempo_trabajo_segundos != null) {
+    const descanso =
+      linea.tiempo_descanso_segundos != null
+        ? ` x${linea.tiempo_descanso_segundos}"`
+        : '';
+    const rpe = linea.rpe != null ? ` @RPE ${linea.rpe}` : '';
+    return `${conEquipo} ${linea.tiempo_trabajo_segundos}"${descanso}${rpe}`;
+  }
+
+  const reps =
+    linea.repeticiones != null ? ` x${linea.repeticiones}reps` : '';
+  const rpe = linea.rpe != null ? ` @RPE ${linea.rpe}` : '';
+  return `${conEquipo}${reps}${rpe}`;
+}
+
+export function formatearPieSerie(serie: BloqueSerie): string {
+  const pie = `${serie.cantidad_series} series`;
+  if (serie.tipo_estructura === 'serie_lineal') {
+    return pie;
+  }
+  return `${pie} · ${ETIQUETAS_ESTRUCTURA[serie.tipo_estructura]}`;
 }
 //#endregion
 
@@ -82,12 +183,11 @@ export class RutinasServicio {
     return (data as Perfil[]) ?? [];
   }
 
-  public async listarClientesSinEntrenador(): Promise<Perfil[]> {
+  public async listarClientes(): Promise<Perfil[]> {
     const { data, error } = await this.autenticacion.cliente
       .from('perfiles')
       .select('id, rol, nombre_completo, email, url_avatar, entrenador_id')
       .eq('rol', 'cliente')
-      .is('entrenador_id', null)
       .order('nombre_completo');
 
     if (error) {
@@ -97,12 +197,24 @@ export class RutinasServicio {
     return (data as Perfil[]) ?? [];
   }
 
-  public async vincularCliente(clienteId: string): Promise<void> {
-    const entrenadorId = this.autenticacion.perfil()?.id;
-    if (!entrenadorId) {
-      throw new Error('No hay sesión de entrenador.');
+  public async listarEntrenadores(): Promise<Perfil[]> {
+    const { data, error } = await this.autenticacion.cliente
+      .from('perfiles')
+      .select('id, rol, nombre_completo, email, url_avatar, entrenador_id')
+      .eq('rol', 'entrenador')
+      .order('nombre_completo');
+
+    if (error) {
+      throw error;
     }
 
+    return (data as Perfil[]) ?? [];
+  }
+
+  public async asignarEntrenador(
+    clienteId: string,
+    entrenadorId: string | null
+  ): Promise<void> {
     const { error } = await this.autenticacion.cliente
       .from('perfiles')
       .update({ entrenador_id: entrenadorId })
@@ -132,7 +244,9 @@ export class RutinasServicio {
   public async listarEjercicios(): Promise<EjercicioCatalogo[]> {
     const { data, error } = await this.autenticacion.cliente
       .from('ejercicios')
-      .select('id, nombre, grupo_muscular, equipo, url_inicio, url_final')
+      .select(
+        'id, nombre, grupo_muscular, equipo_base, url_recurso, descripcion'
+      )
       .order('nombre');
 
     if (error) {
@@ -143,19 +257,68 @@ export class RutinasServicio {
   }
   //#endregion
 
+  //#region Biblioteca de entrenamientos
+  public async listarEntrenamientos(): Promise<EntrenamientoResumen[]> {
+    const { data, error } = await this.autenticacion.cliente
+      .from('entrenamientos')
+      .select('id, nombre, descripcion')
+      .order('nombre');
+
+    if (error) {
+      throw error;
+    }
+
+    return (data as EntrenamientoResumen[]) ?? [];
+  }
+
+  public async obtenerEntrenamiento(
+    id: string
+  ): Promise<Entrenamiento | null> {
+    const { data, error } = await this.autenticacion.cliente
+      .from('entrenamientos')
+      .select(SELECT_ARBOL_ENTRENAMIENTO)
+      .eq('id', id)
+      .maybeSingle();
+
+    if (error) {
+      throw error;
+    }
+
+    if (!data) {
+      return null;
+    }
+
+    return this.mapearEntrenamiento(data as RegistroEntrenamientoAnidado);
+  }
+
+  public async guardarEntrenamiento(
+    entrenamiento: Entrenamiento
+  ): Promise<string> {
+    const { data, error } = await this.autenticacion.cliente.rpc(
+      'guardar_entrenamiento',
+      { p: this.payloadEntrenamiento(entrenamiento) }
+    );
+
+    if (error) {
+      throw error;
+    }
+
+    return data as string;
+  }
+  //#endregion
+
   //#region Plan
-  public async obtenerPlanActivo(clienteId: string): Promise<PlanEntrenamiento | null> {
+  public async obtenerPlanActivo(
+    clienteId: string
+  ): Promise<PlanEntrenamiento | null> {
     const { data, error } = await this.autenticacion.cliente
       .from('planes_entrenamiento')
       .select(
         `
         id, titulo, objetivo,
-        dias_entrenamiento (
-          id, letra_dia, nombre, enfoque, orden,
-          ejercicios_dia (
-            ejercicio_id, series, repeticiones, carga_kg, descanso_segundos, observaciones, orden,
-            ejercicios (id, nombre, grupo_muscular, equipo, url_inicio, url_final)
-          )
+        plan_entrenamientos (
+          orden,
+          entrenamientos (${SELECT_ARBOL_ENTRENAMIENTO})
         )
       `
       )
@@ -178,14 +341,14 @@ export class RutinasServicio {
     clienteId: string,
     titulo: string,
     objetivo: string,
-    dias: DiaEditable[]
+    entrenamientoIds: string[],
+    metrica?: MetricaCliente
   ): Promise<void> {
     const entrenadorId = this.autenticacion.perfil()?.id;
     if (!entrenadorId) {
       throw new Error('No hay sesión de entrenador.');
     }
 
-    const diasConEjercicios = dias.filter((dia) => dia.ejercicios.length > 0);
     const supabase = this.autenticacion.cliente;
 
     const { error: errorDesactivar } = await supabase
@@ -205,7 +368,6 @@ export class RutinasServicio {
         cliente_id: clienteId,
         titulo,
         objetivo: objetivo || null,
-        dias_por_semana: diasConEjercicios.length,
         fecha_inicio: new Date().toISOString().slice(0, 10),
         esta_activo: true,
       })
@@ -216,53 +378,32 @@ export class RutinasServicio {
       throw errorPlan;
     }
 
-    for (const [indice, dia] of diasConEjercicios.entries()) {
-      const { data: diaGuardado, error: errorDia } = await supabase
-        .from('dias_entrenamiento')
-        .insert({
-          plan_id: plan.id,
-          letra_dia: dia.letra_dia,
-          nombre: dia.nombre || `Entrenamiento ${dia.letra_dia}`,
-          enfoque: dia.enfoque || null,
-          orden: indice + 1,
-        })
-        .select('id')
-        .single();
+    const asignaciones = entrenamientoIds.map((entrenamientoId, indice) => ({
+      plan_id: plan.id,
+      entrenamiento_id: entrenamientoId,
+      orden: indice + 1,
+    }));
 
-      if (errorDia) {
-        throw errorDia;
+    if (asignaciones.length > 0) {
+      const { error: errorAsignar } = await supabase
+        .from('plan_entrenamientos')
+        .insert(asignaciones);
+
+      if (errorAsignar) {
+        throw errorAsignar;
       }
+    }
 
-      const lineas = dia.ejercicios
-        .filter((linea) => linea.ejercicio_id)
-        .map((linea, orden) => ({
-          dia_entrenamiento_id: diaGuardado.id,
-          ejercicio_id: linea.ejercicio_id,
-          series: linea.series,
-          repeticiones: linea.repeticiones,
-          carga_kg: linea.carga_kg,
-          descanso_segundos: linea.descanso_segundos,
-          observaciones: linea.observaciones,
-          orden: orden + 1,
-        }));
-
-      if (lineas.length === 0) {
-        continue;
-      }
-
-      const { error: errorLineas } = await supabase
-        .from('ejercicios_dia')
-        .insert(lineas);
-
-      if (errorLineas) {
-        throw errorLineas;
-      }
+    if (metrica && (metrica.peso_kg != null || metrica.altura_m != null)) {
+      await this.guardarMetrica(clienteId, metrica);
     }
   }
   //#endregion
 
   //#region Registro
-  public async completarDia(diaEntrenamientoId: string): Promise<void> {
+  public async completarEntrenamiento(
+    entrenamientoId: string
+  ): Promise<void> {
     const clienteId = this.autenticacion.perfil()?.id;
     if (!clienteId) {
       throw new Error('No hay sesión de alumno.');
@@ -272,8 +413,72 @@ export class RutinasServicio {
       .from('registros_entrenamiento')
       .insert({
         cliente_id: clienteId,
-        dia_entrenamiento_id: diaEntrenamientoId,
+        entrenamiento_id: entrenamientoId,
         completado_en: new Date().toISOString(),
+      });
+
+    if (error) {
+      throw error;
+    }
+  }
+
+  public async listarRegistros(clienteId: string): Promise<RegistroSesion[]> {
+    const { data, error } = await this.autenticacion.cliente
+      .from('registros_entrenamiento')
+      .select(
+        `
+        id, completado_en,
+        entrenamientos (nombre)
+      `
+      )
+      .eq('cliente_id', clienteId)
+      .order('completado_en', { ascending: false });
+
+    if (error) {
+      throw error;
+    }
+
+    return ((data as RegistroFilaAnidada[] | null) ?? []).map((fila) => {
+      const entrenamiento = uno(fila.entrenamientos);
+      return {
+        id: fila.id,
+        completado_en: fila.completado_en,
+        nombre_entrenamiento: entrenamiento?.nombre ?? null,
+      };
+    });
+  }
+  //#endregion
+
+  //#region Métricas
+  public async obtenerUltimaMetrica(
+    clienteId: string
+  ): Promise<MetricaCliente | null> {
+    const { data, error } = await this.autenticacion.cliente
+      .from('metricas_cliente')
+      .select('peso_kg, altura_m, registrado_en')
+      .eq('cliente_id', clienteId)
+      .order('registrado_en', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    if (error) {
+      throw error;
+    }
+
+    return (data as MetricaCliente | null) ?? null;
+  }
+
+  public async guardarMetrica(
+    clienteId: string,
+    metrica: MetricaCliente
+  ): Promise<void> {
+    const { error } = await this.autenticacion.cliente
+      .from('metricas_cliente')
+      .insert({
+        cliente_id: clienteId,
+        peso_kg: metrica.peso_kg,
+        altura_m: metrica.altura_m,
+        registrado_en: new Date().toISOString(),
       });
 
     if (error) {
@@ -284,7 +489,7 @@ export class RutinasServicio {
 
   //#region Mapeo
   private mapearPlan(registro: RegistroPlanAnidado): PlanEntrenamiento {
-    const dias = [...(registro.dias_entrenamiento ?? [])].sort(
+    const asignaciones = [...(registro.plan_entrenamientos ?? [])].sort(
       (a, b) => a.orden - b.orden
     );
 
@@ -292,26 +497,86 @@ export class RutinasServicio {
       id: registro.id,
       titulo: registro.titulo,
       objetivo: registro.objetivo,
-      dias: dias.map((dia) => ({
-        id: dia.id,
-        letra_dia: dia.letra_dia,
-        nombre: dia.nombre,
-        enfoque: dia.enfoque,
-        orden: dia.orden,
-        ejercicios: [...(dia.ejercicios_dia ?? [])]
+      entrenamientos: asignaciones
+        .map((asignacion) => uno(asignacion.entrenamientos))
+        .filter((item): item is RegistroEntrenamientoAnidado => item != null)
+        .map((item) => this.mapearEntrenamiento(item)),
+    };
+  }
+
+  private mapearEntrenamiento(
+    registro: RegistroEntrenamientoAnidado
+  ): Entrenamiento {
+    const bloques = [...(registro.bloques ?? [])].sort(
+      (a, b) => a.orden - b.orden
+    );
+
+    return {
+      id: registro.id,
+      nombre: registro.nombre,
+      descripcion: registro.descripcion,
+      bloques: bloques.map((bloque) => ({
+        id: bloque.id,
+        nombre: bloque.nombre,
+        orden: bloque.orden,
+        notas: bloque.notas,
+        series: [...(bloque.bloque_series ?? [])]
           .sort((a, b) => a.orden - b.orden)
-          .map((linea) => ({
-            ejercicio_id: linea.ejercicio_id,
-            series: linea.series,
-            repeticiones: linea.repeticiones,
-            carga_kg: linea.carga_kg,
-            descanso_segundos: linea.descanso_segundos,
-            observaciones: linea.observaciones,
-            orden: linea.orden,
-            ejercicio: Array.isArray(linea.ejercicios)
-              ? (linea.ejercicios[0] ?? null)
-              : (linea.ejercicios ?? null),
+          .map((serie) => ({
+            id: serie.id,
+            orden: serie.orden,
+            tipo_estructura: serie.tipo_estructura,
+            cantidad_series: serie.cantidad_series,
+            descanso_post_serie_segundos: serie.descanso_post_serie_segundos,
+            ejercicios: [...(serie.ejercicios_serie ?? [])]
+              .sort((a, b) => a.orden - b.orden)
+              .map((linea) => {
+                const ejercicio = uno(linea.ejercicios);
+                return {
+                  id: linea.id,
+                  ejercicio_id: linea.ejercicio_id,
+                  orden: linea.orden,
+                  codigo_visible: linea.codigo_visible,
+                  equipo: linea.equipo,
+                  repeticiones: linea.repeticiones,
+                  tiempo_trabajo_segundos: linea.tiempo_trabajo_segundos,
+                  tiempo_descanso_segundos: linea.tiempo_descanso_segundos,
+                  rpe: linea.rpe == null ? null : Number(linea.rpe),
+                  ejercicio,
+                };
+              }),
           })),
+      })),
+    };
+  }
+
+  private payloadEntrenamiento(entrenamiento: Entrenamiento): object {
+    return {
+      id: entrenamiento.id || null,
+      nombre: entrenamiento.nombre,
+      descripcion: entrenamiento.descripcion,
+      bloques: entrenamiento.bloques.map((bloque, indiceBloque) => ({
+        nombre: bloque.nombre,
+        orden: indiceBloque + 1,
+        notas: bloque.notas,
+        series: bloque.series.map((serie, indiceSerie) => ({
+          orden: indiceSerie + 1,
+          tipo_estructura: serie.tipo_estructura,
+          cantidad_series: serie.cantidad_series,
+          descanso_post_serie_segundos: serie.descanso_post_serie_segundos,
+          ejercicios: serie.ejercicios
+            .filter((linea) => linea.ejercicio_id)
+            .map((linea, indiceLinea) => ({
+              ejercicio_id: linea.ejercicio_id,
+              orden: indiceLinea + 1,
+              codigo_visible: linea.codigo_visible,
+              equipo: linea.equipo,
+              repeticiones: linea.repeticiones,
+              tiempo_trabajo_segundos: linea.tiempo_trabajo_segundos,
+              tiempo_descanso_segundos: linea.tiempo_descanso_segundos,
+              rpe: linea.rpe,
+            })),
+        })),
       })),
     };
   }
@@ -320,30 +585,71 @@ export class RutinasServicio {
 }
 
 //#region Tipos de filas anidadas
-interface RegistroLineaAnidada {
+function uno<T>(valor: T | T[] | null | undefined): T | null {
+  if (valor == null) {
+    return null;
+  }
+  return Array.isArray(valor) ? (valor[0] ?? null) : valor;
+}
+
+interface RegistroEjercicioSerieAnidado {
+  id: string;
   ejercicio_id: string;
-  series: number | null;
-  repeticiones: number | null;
-  carga_kg: number | null;
-  descanso_segundos: number | null;
-  observaciones: string | null;
   orden: number;
+  codigo_visible: string | null;
+  equipo: string | null;
+  repeticiones: number | null;
+  tiempo_trabajo_segundos: number | null;
+  tiempo_descanso_segundos: number | null;
+  rpe: number | string | null;
   ejercicios: EjercicioCatalogo | EjercicioCatalogo[] | null;
 }
 
-interface RegistroDiaAnidado {
+interface RegistroBloqueSerieAnidado {
   id: string;
-  letra_dia: LetraDia;
-  nombre: string | null;
-  enfoque: string | null;
   orden: number;
-  ejercicios_dia: RegistroLineaAnidada[] | null;
+  tipo_estructura: TipoEstructura;
+  cantidad_series: number;
+  descanso_post_serie_segundos: number | null;
+  ejercicios_serie: RegistroEjercicioSerieAnidado[] | null;
+}
+
+interface RegistroBloqueAnidado {
+  id: string;
+  nombre: string;
+  orden: number;
+  notas: string | null;
+  bloque_series: RegistroBloqueSerieAnidado[] | null;
+}
+
+interface RegistroEntrenamientoAnidado {
+  id: string;
+  nombre: string;
+  descripcion: string | null;
+  bloques: RegistroBloqueAnidado[] | null;
 }
 
 interface RegistroPlanAnidado {
   id: string;
   titulo: string;
   objetivo: string | null;
-  dias_entrenamiento: RegistroDiaAnidado[] | null;
+  plan_entrenamientos:
+    | {
+        orden: number;
+        entrenamientos:
+          | RegistroEntrenamientoAnidado
+          | RegistroEntrenamientoAnidado[]
+          | null;
+      }[]
+    | null;
+}
+
+interface RegistroFilaAnidada {
+  id: string;
+  completado_en: string;
+  entrenamientos:
+    | { nombre: string | null }
+    | { nombre: string | null }[]
+    | null;
 }
 //#endregion

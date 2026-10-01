@@ -1,5 +1,5 @@
 -- Pegar en Supabase: SQL Editor → Run
--- Corrige "Database error saving new user" al registrar desde la app.
+-- Crea el perfil al registrar. Roles públicos: cliente | entrenador.
 
 create or replace function public.manejar_nuevo_usuario()
 returns trigger
@@ -7,12 +7,20 @@ language plpgsql
 security definer
 set search_path = public
 as $$
+declare
+  rol_nuevo text;
 begin
+  rol_nuevo := coalesce(nullif(new.raw_user_meta_data->>'rol', ''), 'cliente');
+
+  if rol_nuevo not in ('cliente', 'entrenador') then
+    rol_nuevo := 'cliente';
+  end if;
+
   insert into public.perfiles (id, email, rol, nombre_completo)
   values (
     new.id,
     new.email,
-    coalesce(nullif(new.raw_user_meta_data->>'rol', ''), 'cliente'),
+    rol_nuevo,
     coalesce(
       nullif(new.raw_user_meta_data->>'nombre_completo', ''),
       split_part(new.email, '@', 1)

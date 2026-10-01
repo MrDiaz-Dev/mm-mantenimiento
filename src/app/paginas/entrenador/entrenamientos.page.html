@@ -1,0 +1,60 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-title>Entrenamientos</ion-title>
+    <ion-buttons slot="end">
+      <app-boton-tema></app-boton-tema>
+      <ion-button (click)="cerrarSesion()" aria-label="Cerrar sesión">
+        <ion-icon slot="icon-only" name="log-out-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="contenido">
+  @if (cargando) {
+    <p class="muted">Cargando biblioteca…</p>
+  } @else if (biblioteca.length === 0) {
+    <div class="estado-vacio">
+      <ion-icon name="barbell-outline" aria-hidden="true"></ion-icon>
+      <p>
+        Todavía no hay entrenamientos. Crea el primero para asignarlo a tus
+        alumnos.
+      </p>
+      <ion-button color="primary" (click)="irANuevo()">
+        Crear entrenamiento
+      </ion-button>
+    </div>
+  } @else {
+    <ul class="lista-tarjetas">
+      @for (item of biblioteca; track item.id) {
+        <li>
+          <button
+            type="button"
+            class="tarjeta-entrenamiento"
+            (click)="irAEditar(item.id)"
+          >
+            <span class="tarjeta-entrenamiento__texto">
+              <span class="tarjeta-entrenamiento__nombre">{{ item.nombre }}</span>
+              @if (item.descripcion) {
+                <span class="tarjeta-entrenamiento__desc">{{
+                  item.descripcion
+                }}</span>
+              }
+            </span>
+            <ion-icon name="chevron-forward" aria-hidden="true"></ion-icon>
+          </button>
+        </li>
+      }
+    </ul>
+  }
+
+  <ion-fab slot="fixed" vertical="bottom" horizontal="end">
+    <ion-fab-button
+      color="primary"
+      (click)="irANuevo()"
+      aria-label="Nuevo entrenamiento"
+    >
+      <ion-icon name="add"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
+</ion-content>
