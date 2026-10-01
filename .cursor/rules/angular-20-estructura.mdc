@@ -1,0 +1,97 @@
+---
+description: Estructura y nombres Angular 20 (sin sufijos técnicos, carpetas por área funcional)
+alwaysApply: true
+---
+
+# Estructura Angular 20
+
+El código sigue el estilo oficial de Angular 20 (`angular.dev`).
+
+## Nombres: sin sufijos de rol
+
+El archivo y la clase coinciden con el identificador TypeScript. Nada de `.component.ts`, `.service.ts`, `.directive.ts`, `.page.ts` ni clases `*Component` / `*Service` / `*Page`.
+
+| ❌ Legacy | ✅ Angular 20 |
+| --- | --- |
+| `ficha-rutina.component.ts` → `FichaRutinaComponent` | `ficha-rutina.ts` → `FichaRutina` |
+| `rutinas.servicio.ts` → `RutinasServicio` | `rutinas-api.ts` → `RutinasApi` (o `-store`) |
+| `iniciar-sesion.page.ts` → `IniciarSesionPage` | `iniciar-sesion.ts` → `IniciarSesion` |
+
+- Si la plantilla o los estilos van en archivos aparte, mismo basename (`ficha-rutina.html`, `ficha-rutina.scss`). Tests: `ficha-rutina.spec.ts`.
+- Omitir `standalone: true` (ya es el default). No crear NgModules ni `standalone: false`.
+- Inputs/outputs con `input()` / `output()`, no `@Input()` / `@Output()`.
+- Sí se mantienen: `.routes.ts`, `.guard.ts`, `.interceptor.ts`, `.spec.ts`.
+- ESLint: `component-class-suffix` y `directive-class-suffix` desactivadas (default Angular 20).
+
+```typescript
+@Component({
+  selector: 'app-ficha-rutina',
+  templateUrl: './ficha-rutina.html',
+  styleUrl: './ficha-rutina.scss',
+})
+export class FichaRutina {
+  readonly rutina = input.required<Rutina>();
+}
+```
+
+## Carpetas: por área funcional, nunca por tipo
+
+Prohibido crear `componentes/`, `servicios/`, `directivas/`, `pipes/`, `models/`, `paginas/`, `guardianes/` (ni equivalentes en inglés).
+
+```text
+src/app/
+├── autenticacion/
+│   ├── autenticacion.routes.ts
+│   ├── autenticacion-sesion.ts      # estado / sesión (propósito, no .service)
+│   ├── autenticacion.guard.ts
+│   └── iniciar-sesion/              # vista
+│       ├── iniciar-sesion.ts        # clase: IniciarSesion
+│       ├── iniciar-sesion.html
+│       └── iniciar-sesion.scss
+├── rutinas/
+│   ├── rutinas.routes.ts
+│   ├── rutinas-api.ts
+│   ├── rutinas-store.ts
+│   ├── rutinas-types.ts
+│   └── ficha-rutina/
+├── ui/                              # visual compartido (boton-tema, …)
+├── core/                            # interceptores, tokens
+├── app.ts
+├── app.config.ts
+└── app.routes.ts
+```
+
+Co-ubicar por subdominio. UI genérica en `ui/`. Infra en `core/`.
+
+## Plantilla y estilos: inline vs archivos
+
+Un `.html` / `.scss` de pocas líneas (cáscara de tabs, un botón, un icono) se inlinea en el `.ts`. Si el markup o el SCSS crecen, se extraen a la **misma carpeta**, mismo basename.
+
+| Inline en el `.ts` | Extraer a `.html` / `.scss` |
+| --- | --- |
+| Plantilla ≤ ~20 líneas y estilos ≤ ~15 (o ninguno) | Plantilla ≳ 40 líneas, varios bloques visuales, o SCSS de layout |
+| Cáscaras (`ion-tabs`), un control suelto | Páginas con formulario, listas, cabecera + contenido |
+
+- Inline: `template` y `styles` (CSS del componente). Extraído: `templateUrl` / `styleUrl`.
+- SCSS con anidación, mixins o tokens de tema → siempre `.scss` aparte.
+- No dejar `.html` / `.scss` vacíos o de 5 líneas al lado de un `template` / `styles` inline. Al extraer, borrar el inline.
+
+```typescript
+// ✅ cáscara pequeña (hoy pestanas-alumno.html sobra)
+@Component({
+  selector: 'app-pestanas-alumno',
+  template: `
+    <ion-tabs>
+      <ion-tab-bar slot="bottom">
+        <ion-tab-button tab="ficha" href="/alumno/ficha">
+          <ion-icon name="clipboard-outline" aria-hidden="true"></ion-icon>
+          <ion-label>Ficha</ion-label>
+        </ion-tab-button>
+      </ion-tab-bar>
+    </ion-tabs>
+  `,
+  imports: [IonTabs, IonTabBar, IonTabButton, IonIcon, IonLabel],
+  host: { class: 'ion-page' },
+})
+export class PestanasAlumno {}
+```

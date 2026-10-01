@@ -1,0 +1,99 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-title>Ficha</ion-title>
+    <ion-buttons slot="end">
+      <app-boton-tema></app-boton-tema>
+      <ion-button (click)="cerrarSesion()" aria-label="Cerrar sesión">
+        <ion-icon slot="icon-only" name="log-out-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="contenido">
+  <p>
+    Alumno:
+    <strong>{{ nombreVisible(perfil()) }}</strong>
+  </p>
+  <p>
+    Entrenador:
+    <strong>{{ nombreVisible(entrenador) }}</strong>
+  </p>
+  @if (metrica !== null && metrica.peso_kg !== null) {
+    <p>Peso: {{ metrica.peso_kg }} kg</p>
+  }
+
+  @if (cargando) {
+    <p class="muted">Cargando rutina…</p>
+  } @else if (!plan) {
+    <p class="muted">Tu entrenador aún no asignó un plan.</p>
+  } @else {
+    <h2>{{ plan.titulo }}</h2>
+    @if (plan.objetivo) {
+      <p class="muted">{{ plan.objetivo }}</p>
+    }
+
+    @if (plan.entrenamientos.length === 0) {
+      <p class="muted">El plan no tiene entrenamientos aún.</p>
+    } @else {
+      <ion-segment
+        scrollable
+        [value]="activo?.id"
+        (ionChange)="cambiarEntrenamiento($any($event).detail.value)"
+      >
+        @for (item of plan.entrenamientos; track item.id) {
+          <ion-segment-button [value]="item.id">
+            <ion-label>{{ item.nombre }}</ion-label>
+          </ion-segment-button>
+        }
+      </ion-segment>
+
+      @if (activo) {
+        <article class="ficha">
+          <h1>{{ activo.nombre }}</h1>
+          @if (activo.descripcion) {
+            <p class="muted">{{ activo.descripcion }}</p>
+          }
+
+          @for (bloque of activo.bloques; track $index) {
+            <section class="bloque">
+              <h3>{{ bloque.nombre }}</h3>
+              @for (serie of bloque.series; track $index) {
+                <ul>
+                  @for (linea of serie.ejercicios; track $index) {
+                    <li>
+                      <span>{{ formatearEjercicio(linea) }}</span>
+                      @if (linea.ejercicio?.url_recurso) {
+                        <a
+                          class="tecnica"
+                          [href]="linea.ejercicio?.url_recurso"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          Ver técnica
+                        </a>
+                      }
+                    </li>
+                  }
+                </ul>
+                <p class="pie">{{ formatearPieSerie(serie) }}</p>
+              }
+              @if (bloque.notas) {
+                <p class="notas">{{ bloque.notas }}</p>
+              }
+            </section>
+          }
+        </article>
+
+        <ion-button
+          expand="block"
+          color="primary"
+          [disabled]="completado"
+          (click)="completar()"
+        >
+          {{ completado ? 'Entrenamiento completado' : 'Completar entrenamiento' }}
+        </ion-button>
+      }
+    }
+  }
+</ion-content>

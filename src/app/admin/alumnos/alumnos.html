@@ -1,0 +1,57 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-title>Administración</ion-title>
+    <ion-buttons slot="end">
+      <app-boton-tema></app-boton-tema>
+      <ion-button (click)="cerrarSesion()" aria-label="Cerrar sesión">
+        <ion-icon slot="icon-only" name="log-out-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content
+  [fullscreen]="true"
+  class="contenido"
+  [scrollEvents]="true"
+  appCerrarOverlayAlDeslizar
+>
+  <p>
+    Hola{{ perfil()?.nombre_completo ? ', ' + perfil()?.nombre_completo : '' }}.
+  </p>
+  <p class="muted">Asigna cada alumno a un entrenador.</p>
+
+  @if (cargando) {
+    <p class="muted">Cargando…</p>
+  } @else if (clientes.length === 0) {
+    <p class="muted">No hay alumnos registrados.</p>
+  } @else {
+    <ion-list>
+      @for (cliente of clientes; track cliente.id) {
+        <ion-item>
+          <ion-label>
+            <h3>{{ nombreVisible(cliente) }}</h3>
+            <p>{{ cliente.email }}</p>
+            <p-select
+              [inputId]="'entrenador-' + cliente.id"
+              [ngModel]="seleccion[cliente.id]"
+              (ngModelChange)="seleccion[cliente.id] = $event"
+              [options]="opcionesEntrenadores"
+              optionLabel="etiqueta"
+              optionValue="id"
+              placeholder="Sin entrenador"
+              fluid
+              appendTo="body"
+            />
+          </ion-label>
+          <ion-button slot="end" (click)="guardarAsignacion(cliente.id)">
+            Guardar
+          </ion-button>
+        </ion-item>
+      }
+    </ion-list>
+    @if (entrenadores.length === 0) {
+      <p class="muted">No hay entrenadores. Deben registrarse con ese rol.</p>
+    }
+  }
+</ion-content>

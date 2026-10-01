@@ -1,0 +1,363 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button
+        defaultHref="/entrenador/entrenamientos"
+        text=""
+      ></ion-back-button>
+    </ion-buttons>
+    <ion-title>{{ esNuevo ? 'Nuevo' : 'Editar' }}</ion-title>
+    <ion-buttons slot="end">
+      <app-boton-tema></app-boton-tema>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content
+  [fullscreen]="true"
+  class="contenido contenido--con-pie editor-entrenamiento"
+  [scrollEvents]="true"
+  appCerrarOverlayAlDeslizar
+>
+  @if (cargando) {
+    <p class="muted">Cargando entrenamiento…</p>
+  } @else {
+    <section aria-labelledby="titulo-datos">
+      <h2 id="titulo-datos">Datos</h2>
+      <div class="campo">
+        <label for="nombre">Nombre</label>
+        <input
+          id="nombre"
+          name="nombre"
+          type="text"
+          pInputText
+          fluid
+          [(ngModel)]="entrenamiento.nombre"
+          placeholder="Vitalplus Caballeros - 1ra sem - Miércoles"
+        />
+      </div>
+      <div class="campo">
+        <label for="descripcion">Descripción</label>
+        <textarea
+          id="descripcion"
+          name="descripcion"
+          rows="2"
+          pTextarea
+          fluid
+          [(ngModel)]="entrenamiento.descripcion"
+        ></textarea>
+      </div>
+    </section>
+
+    @for (bloque of entrenamiento.bloques; track $index; let indiceBloque = $index) {
+      <details class="bloque" open>
+        <summary class="bloque__cabecera">
+          <ion-icon
+            class="bloque__chevron"
+            name="chevron-down"
+            aria-hidden="true"
+          ></ion-icon>
+          <span class="bloque__numero">{{ indiceBloque + 1 }}</span>
+          <span class="bloque__titulo">{{
+            bloque.nombre || 'Bloque ' + (indiceBloque + 1)
+          }}</span>
+          <span class="bloque__meta">
+            {{ bloque.series.length }}
+            {{ bloque.series.length === 1 ? 'serie' : 'series' }}
+          </span>
+          <ion-button
+            class="boton-icono"
+            fill="clear"
+            color="danger"
+            [attr.aria-label]="'Quitar bloque ' + (indiceBloque + 1)"
+            (click)="quitarBloqueDesdeCabecera($event, indiceBloque)"
+          >
+            <ion-icon slot="icon-only" name="trash-outline"></ion-icon>
+          </ion-button>
+        </summary>
+
+        <div class="campo">
+          <label [attr.for]="'bloque-nombre-' + indiceBloque">Bloque</label>
+          <input
+            [id]="'bloque-nombre-' + indiceBloque"
+            type="text"
+            pInputText
+            fluid
+            [(ngModel)]="bloque.nombre"
+            placeholder="Bloque de fuerza"
+          />
+        </div>
+        <div class="campo">
+          <label [attr.for]="'bloque-notas-' + indiceBloque">Notas</label>
+          <textarea
+            [id]="'bloque-notas-' + indiceBloque"
+            rows="2"
+            pTextarea
+            fluid
+            [(ngModel)]="bloque.notas"
+          ></textarea>
+        </div>
+
+        @for (serie of bloque.series; track $index; let indiceSerie = $index) {
+          <article class="serie">
+            <header class="serie__cabecera">
+              <p class="serie__titulo">
+                Serie {{ indiceSerie + 1 }}
+                · {{ etiquetaEstructura(serie.tipo_estructura) }}
+              </p>
+              <ion-button
+                class="boton-icono"
+                fill="clear"
+                color="danger"
+                [attr.aria-label]="'Quitar serie ' + (indiceSerie + 1)"
+                (click)="quitarSerie(bloque, indiceSerie)"
+              >
+                <ion-icon slot="icon-only" name="trash-outline"></ion-icon>
+              </ion-button>
+            </header>
+
+            <div class="campo">
+              <label [attr.for]="'estructura-' + indiceBloque + '-' + indiceSerie"
+                >Estructura</label
+              >
+              <p-select
+                [inputId]="'estructura-' + indiceBloque + '-' + indiceSerie"
+                [(ngModel)]="serie.tipo_estructura"
+                [options]="opcionesEstructura"
+                optionLabel="etiqueta"
+                optionValue="valor"
+                fluid
+                appendTo="body"
+              />
+            </div>
+            <div class="cifras">
+              <div class="campo">
+                <label [attr.for]="'vueltas-' + indiceBloque + '-' + indiceSerie"
+                  >Vueltas</label
+                >
+                <p-inputnumber
+                  [inputId]="'vueltas-' + indiceBloque + '-' + indiceSerie"
+                  [(ngModel)]="serie.cantidad_series"
+                  [min]="1"
+                  [useGrouping]="false"
+                  fluid
+                />
+              </div>
+              <div class="campo">
+                <label [attr.for]="'descanso-' + indiceBloque + '-' + indiceSerie"
+                  >Descanso (s)</label
+                >
+                <p-inputnumber
+                  [inputId]="'descanso-' + indiceBloque + '-' + indiceSerie"
+                  [(ngModel)]="serie.descanso_post_serie_segundos"
+                  [min]="0"
+                  [useGrouping]="false"
+                  fluid
+                />
+              </div>
+            </div>
+
+            @for (linea of serie.ejercicios; track $index; let indiceLinea = $index) {
+              <article class="linea">
+                <div class="linea__fila">
+                  <input
+                    class="chip-codigo"
+                    type="text"
+                    pInputText
+                    [(ngModel)]="linea.codigo_visible"
+                    placeholder="A1"
+                    [attr.aria-label]="'Código del ejercicio ' + (indiceLinea + 1)"
+                  />
+                  <div class="campo linea__ejercicio">
+                    <label
+                      class="visually-hidden"
+                      [attr.for]="'ejercicio-' + indiceBloque + '-' + indiceSerie + '-' + indiceLinea"
+                      >Ejercicio</label
+                    >
+                    <p-select
+                      [inputId]="'ejercicio-' + indiceBloque + '-' + indiceSerie + '-' + indiceLinea"
+                      [(ngModel)]="linea.ejercicio_id"
+                      (ngModelChange)="alCambiarEjercicio(linea)"
+                      [options]="catalogo"
+                      optionLabel="nombre"
+                      optionValue="id"
+                      fluid
+                      appendTo="body"
+                    />
+                  </div>
+                  <ion-button
+                    class="boton-icono"
+                    fill="clear"
+                    color="danger"
+                    [attr.aria-label]="
+                      'Quitar ejercicio ' + (linea.codigo_visible || indiceLinea + 1)
+                    "
+                    (click)="quitarEjercicio(serie, indiceLinea)"
+                  >
+                    <ion-icon slot="icon-only" name="trash-outline"></ion-icon>
+                  </ion-button>
+                </div>
+
+                <div class="campo">
+                  <label
+                    [attr.for]="'equipo-' + indiceBloque + '-' + indiceSerie + '-' + indiceLinea"
+                    >Equipo</label
+                  >
+                  <p-select
+                    [inputId]="'equipo-' + indiceBloque + '-' + indiceSerie + '-' + indiceLinea"
+                    [(ngModel)]="linea.equipo"
+                    [options]="tiposEquipo"
+                    [showClear]="true"
+                    placeholder="—"
+                    fluid
+                    appendTo="body"
+                  />
+                </div>
+
+                <ion-segment
+                  [value]="esPorTiempo(linea) ? 'tiempo' : 'reps'"
+                  (ionChange)="alCambiarModo(linea, $any($event).detail.value)"
+                  [attr.aria-label]="'Modo de carga ' + (linea.codigo_visible || indiceLinea + 1)"
+                >
+                  <ion-segment-button value="reps">
+                    <ion-label>Reps</ion-label>
+                  </ion-segment-button>
+                  <ion-segment-button value="tiempo">
+                    <ion-label>Tiempo</ion-label>
+                  </ion-segment-button>
+                </ion-segment>
+
+                @if (esPorTiempo(linea)) {
+                  <div class="cifras cifras--tres">
+                    <div class="campo">
+                      <label
+                        [attr.for]="'trabajo-' + indiceBloque + '-' + indiceSerie + '-' + indiceLinea"
+                        >Trabajo (s)</label
+                      >
+                      <p-inputnumber
+                        [inputId]="'trabajo-' + indiceBloque + '-' + indiceSerie + '-' + indiceLinea"
+                        [(ngModel)]="linea.tiempo_trabajo_segundos"
+                        [min]="1"
+                        [useGrouping]="false"
+                        fluid
+                      />
+                    </div>
+                    <div class="campo">
+                      <label
+                        [attr.for]="'pausa-' + indiceBloque + '-' + indiceSerie + '-' + indiceLinea"
+                        >Pausa (s)</label
+                      >
+                      <p-inputnumber
+                        [inputId]="'pausa-' + indiceBloque + '-' + indiceSerie + '-' + indiceLinea"
+                        [(ngModel)]="linea.tiempo_descanso_segundos"
+                        [min]="0"
+                        [useGrouping]="false"
+                        fluid
+                      />
+                    </div>
+                    <div class="campo">
+                      <label
+                        [attr.for]="'rpe-' + indiceBloque + '-' + indiceSerie + '-' + indiceLinea"
+                        >RPE</label
+                      >
+                      <p-inputnumber
+                        [inputId]="'rpe-' + indiceBloque + '-' + indiceSerie + '-' + indiceLinea"
+                        [(ngModel)]="linea.rpe"
+                        [min]="1"
+                        [max]="10"
+                        [step]="0.5"
+                        [minFractionDigits]="0"
+                        [maxFractionDigits]="1"
+                        [useGrouping]="false"
+                        fluid
+                      />
+                    </div>
+                  </div>
+                } @else {
+                  <div class="cifras">
+                    <div class="campo">
+                      <label
+                        [attr.for]="'reps-' + indiceBloque + '-' + indiceSerie + '-' + indiceLinea"
+                        >Reps</label
+                      >
+                      <p-inputnumber
+                        [inputId]="'reps-' + indiceBloque + '-' + indiceSerie + '-' + indiceLinea"
+                        [(ngModel)]="linea.repeticiones"
+                        [min]="1"
+                        [useGrouping]="false"
+                        fluid
+                      />
+                    </div>
+                    <div class="campo">
+                      <label
+                        [attr.for]="'rpe-' + indiceBloque + '-' + indiceSerie + '-' + indiceLinea"
+                        >RPE</label
+                      >
+                      <p-inputnumber
+                        [inputId]="'rpe-' + indiceBloque + '-' + indiceSerie + '-' + indiceLinea"
+                        [(ngModel)]="linea.rpe"
+                        [min]="1"
+                        [max]="10"
+                        [step]="0.5"
+                        [minFractionDigits]="0"
+                        [maxFractionDigits]="1"
+                        [useGrouping]="false"
+                        fluid
+                      />
+                    </div>
+                  </div>
+                }
+              </article>
+            }
+
+            @if (serie.ejercicios.length > 0) {
+              <div class="vista-previa">
+                @for (linea of serie.ejercicios; track $index) {
+                  <p>{{ formatearEjercicio(linea) }}</p>
+                }
+                <p class="pie">{{ formatearPieSerie(serie) }}</p>
+              </div>
+            }
+
+            <button
+              type="button"
+              class="boton-anadir"
+              (click)="anadirEjercicio(serie)"
+            >
+              <ion-icon name="add" aria-hidden="true"></ion-icon>
+              Añadir ejercicio
+            </button>
+          </article>
+        }
+
+        <button
+          type="button"
+          class="boton-anadir"
+          (click)="anadirSerie(bloque)"
+        >
+          <ion-icon name="add" aria-hidden="true"></ion-icon>
+          Añadir serie
+        </button>
+      </details>
+    }
+
+    @if (catalogo.length === 0) {
+      <p class="muted">El catálogo de ejercicios está vacío.</p>
+    }
+
+    <button type="button" class="boton-anadir" (click)="anadirBloque()">
+      <ion-icon name="add" aria-hidden="true"></ion-icon>
+      Añadir bloque
+    </button>
+  }
+</ion-content>
+
+@if (!cargando) {
+  <ion-footer class="pie-accion">
+    <ion-toolbar>
+      <ion-button expand="block" color="primary" (click)="guardar()">
+        Guardar
+      </ion-button>
+    </ion-toolbar>
+  </ion-footer>
+}

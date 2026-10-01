@@ -16,7 +16,7 @@ Cuando se hable de **UI**, **estilos**, **páginas**, **componentes** o **fronte
 
 | Pedido | Ubicación esperada |
 |--------|--------------------|
-| Cambiar layout de Inicio | `ionic/angular/src/app/paginas/inicio/` |
+| Cambiar layout de Iniciar sesión | `ionic/angular/src/app/autenticacion/iniciar-sesion/` |
 | Ajustar variables de tema | `ionic/angular/src/theme/` / `global.scss` |
 | Nueva página / ruta | `ionic/angular/src/app/` |
 
